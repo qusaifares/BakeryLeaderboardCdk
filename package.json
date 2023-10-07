@@ -29,6 +29,8 @@
   "dependencies": {
     "aws-cdk-lib": "2.100.0",
     "constructs": "^10.0.0",
-    "source-map-support": "^0.5.21"
+    "source-map-support": "^0.5.21",
+    
+    "BakeryLeaderboardSummonerSourceLambda": "git+https://github.com/qusaifares/BakeryLeaderboardSummonerSourceLambda.git"
   }
 }
