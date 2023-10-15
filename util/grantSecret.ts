@@ -8,7 +8,7 @@ function assertEnvironmentVariableKeyInput(key: string) {
 }
 
 export default function grantSecret(
-  secret: secretsmanager.Secret,
+  secret: secretsmanager.ISecret,
   targetLambda: lambda.Function,
   environmentVariableKey: string,
 ) {
