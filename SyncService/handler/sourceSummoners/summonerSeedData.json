@@ -1,0 +1,118 @@
+{
+  "players": [
+    {
+      "id": 1,
+      "discordId": "236134462683873280",
+      "summonerNames": ["bandages"],
+      "keywords": ["kc", "qusai", "bandages", "kalichi"]
+    },
+    {
+      "id": 2,
+      "discordId": "125832951203233792",
+      "summonerNames": ["nogato"],
+      "keywords": ["noel", "godric", "nogato", "majin", "majinaesthetics"]
+    },
+    {
+      "id": 3,
+      "discordId": "338858598484410379",
+      "summonerNames": ["bassel"],
+      "keywords": ["bassel"]
+    },
+    {
+      "id": 4,
+      "discordId": "93834057556688896",
+      "summonerNames": ["stin god"],
+      "keywords": ["stin", "bavuman"]
+    },
+    {
+      "id": 5,
+      "discordId": "88472968027459584",
+      "summonerNames": ["martea"],
+      "keywords": ["martea", "marty"]
+    },
+    {
+      "id": 6,
+      "discordId": "193806390802907136",
+      "summonerNames": ["trúst"],
+      "keywords": ["trúst", "trust", "tristan"]
+    },
+    {
+      "id": 7,
+      "discordId": "193240107015340032",
+      "summonerNames": ["k3v1nrul3s"],
+      "keywords": ["k3v1nrul3s", "k3", "kevin"]
+    },
+    {
+      "id": 8,
+      "discordId": "358667393607663616",
+      "summonerNames": ["olikome", "big itzweird"],
+      "keywords": ["samlee", "sam"]
+    },
+    {
+      "id": 9,
+      "discordId": "209472650387521536",
+      "summonerNames": ["glorious duelist"],
+      "keywords": ["nat", "glorious", "duelist"]
+    },
+    {
+      "id": 10,
+      "discordId": "290199757182468098",
+      "summonerNames": ["khalichi"],
+      "keywords": ["khalichi", "emmy"]
+    },
+    {
+      "id": 11,
+      "discordId": "191559165104095233",
+      "summonerNames": ["kareem100"],
+      "keywords": ["kareem100", "kareem"]
+    },
+    {
+      "id": 12,
+      "discordId": "191692432738484224",
+      "summonerNames": ["Xerous"],
+      "keywords": ["xerous"]
+    },
+    {
+      "id": 13,
+      "discordId": "184432510363500545",
+      "summonerNames": ["vayler"],
+      "keywords": ["vayler", "fahad"]
+    },
+    {
+      "id": 14,
+      "discordId": "296137752221712384",
+      "summonerNames": ["I killed my gma"],
+      "keywords": ["grandma", "gma"]
+    },
+    {
+      "id": 15,
+      "discordId": "123277896600125449",
+      "summonerNames": ["Entirety"],
+      "keywords": ["entirety", "jit", "expound"]
+    },
+    {
+      "id": 16,
+      "discordId": "233206712415420417",
+      "summonerNames": ["im kimbap"],
+      "keywords": ["kimbap", "tom", "hyun"]
+    },
+    {
+      "id": 17,
+      "discordId": "99333537450176512",
+      "summonerNames": ["Jebal"],
+      "keywords": ["john", "jebal"]
+    },
+    {
+      "id": 18,
+      "discordId": "143942508064407553",
+      "summonerNames": ["Riko Suminoe"],
+      "keywords": ["riko", "evan"]
+    },
+    {
+      "id": 19,
+      "discordId": "135019487807275008",
+      "summonerNames": ["n u l l i e l"],
+      "keywords": ["nulliel", "steven"]
+    }
+  ]
+}

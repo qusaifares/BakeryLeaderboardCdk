@@ -12,8 +12,10 @@
     "lint": "npx eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.124",
     "@types/jest": "^29.5.5",
     "@types/node": "20.7.1",
+    "@types/pg": "^8.10.4",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
     "aws-cdk": "2.100.0",
@@ -30,6 +32,12 @@
     "aws-cdk-lib": "2.100.0",
     "BakeryLeaderboardSyncService": "git+https://github.com/qusaifares/BakeryLeaderboardSyncService.git",
     "constructs": "^10.0.0",
-    "source-map-support": "^0.5.21"
+    "source-map-support": "^0.5.21",
+    "@aws-sdk/client-secrets-manager": "^3.427.0",
+    "@aws-sdk/client-sqs": "^3.428.0",
+    "pg": "^8.11.3",
+    "reflect-metadata": "^0.1.13",
+    "twisted": "^1.53.2",
+    "typeorm": "^0.3.17"
   }
 }

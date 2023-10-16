@@ -7,12 +7,17 @@ import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as lambdanodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
+import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+import path = require('path');
 import grantSecret from '../util/grantSecret';
+
+const LAMBDA_HANDLERS_PATH = path.join(__dirname, '../SyncService/handler');
 
 export class BakeryLeaderboardStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -39,50 +44,56 @@ export class BakeryLeaderboardStack extends cdk.Stack {
         instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
         vpc,
       },
-      defaultDatabaseName: 'BakeryLeaderboardDatabase',
+      defaultDatabaseName: 'BakeryLeaderboard',
     });
 
     const auroraClusterSecret = auroraCluster.secret || new secretsmanager.Secret(this, 'AuroraClusterSecret', {
       secretName: 'AURORA_CLUSTER_SECRET',
     });
 
-    // DynamoDB
-    const matchesDynamoDbTable = new dynamodb.Table(this, 'MatchesDynamoDbTable', {
-      partitionKey: {
-        name: 'id',
-        type: dynamodb.AttributeType.STRING,
-      },
-      tableName: 'Matches',
-    });
-
     const summonerSourceLambda = new lambdanodejs.NodejsFunction(this, 'SummonerSourceLambda', {
-      entry: '/node_modules/BakeryLeaderboardSyncService/src/lambda/sourceSummoners/index.ts',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      entry: path.join(LAMBDA_HANDLERS_PATH, 'sourceSummoners/index.ts'),
+      handler: 'handler',
+      vpc,
     });
 
     const sourceMatchesLambda = new lambdanodejs.NodejsFunction(this, 'SourceMatchesLambda', {
-      entry: '/node_modules/BakeryLeaderboardSyncService/src/lambda/sourceMatches/index.ts',
+      entry: path.join(LAMBDA_HANDLERS_PATH, 'sourceMatches/index.ts'),
+      handler: 'handler',
+      vpc,
     });
 
     const getMatchIdsForSummonerLambda = new lambdanodejs.NodejsFunction(this, 'GetMatchIdsForSummonerLambda', {
+      entry: path.join(LAMBDA_HANDLERS_PATH, 'getMatchIdsForSummoner/index.ts'),
+      handler: 'handler',
+      vpc,
     });
 
     const summonerMatchFetchRequestQueue = new sqs.Queue(this, 'SummonerMatchFetchRequestQueue', {
     });
 
-    const fetchMatchQueue = new sqs.Queue(this, 'FetchMatchQueue', {
+    const matchIdProcessingQueue = new sqs.Queue(this, 'MatchIdProcessingQueue', {
     });
 
     // Step Functions
-    const checkIfMatchExistsLambda = new lambdanodejs.NodejsFunction(this, 'CheckIfMatchExistsLambda', {});
-    const fetchMatchAndInsertLambda = new lambdanodejs.NodejsFunction(this, 'FetchMatchAndInsertLambda', {
+    const checkMatchExistenceLambda = new lambdanodejs.NodejsFunction(this, 'CheckMatchExistenceLambda', {
+      entry: path.join(LAMBDA_HANDLERS_PATH, 'checkMatchExistence/index.ts'),
+      handler: 'handler',
+      vpc,
+    });
+    const fetchAndInsertMatchDataLambda = new lambdanodejs.NodejsFunction(this, 'FetchAndInsertMatchDataLambda', {
+      entry: path.join(LAMBDA_HANDLERS_PATH, 'fetchAndInsertMatchData/index.ts'),
+      handler: 'handler',
+      vpc,
     });
 
     const checkIfMatchExistsTask = new tasks.LambdaInvoke(this, 'CheckIfMatchExistsInvocation', {
-      lambdaFunction: checkIfMatchExistsLambda,
+      lambdaFunction: checkMatchExistenceLambda,
     });
 
     const fetchMatchAndInsertTask = new tasks.LambdaInvoke(this, 'FetchMatchAndInsertInvocation', {
-      lambdaFunction: fetchMatchAndInsertLambda,
+      lambdaFunction: fetchAndInsertMatchDataLambda,
     });
 
     const doesMatchExistChoiceState = new sfn.Choice(this, 'DoesMatchExistChoice')
@@ -90,40 +101,51 @@ export class BakeryLeaderboardStack extends cdk.Stack {
 
     const matchSourceDefinition = checkIfMatchExistsTask.next(doesMatchExistChoiceState);
 
+    const matchSourceStateMachine = new sfn.StateMachine(this, 'MatchSourceStateMachine', {
+      definitionBody: sfn.DefinitionBody.fromChainable(matchSourceDefinition),
+    });
+
+    const matchSourceStateMachineTriggerLambda = new lambdanodejs.NodejsFunction(this, 'MatchSourceStateMachineTriggerLambda', {
+      entry: path.join(LAMBDA_HANDLERS_PATH, 'matchSourceStateMachineTrigger/index.ts'),
+      handler: 'handler',
+      environment: {
+        STATE_MACHINE_ARN: matchSourceStateMachine.stateMachineArn,
+      },
+      vpc,
+    });
+
     const sourceMatchesEvent = new events.Rule(this, 'SourceMatchesEvent', {
       targets: [new targets.LambdaFunction(sourceMatchesLambda)],
       schedule: events.Schedule.rate(cdk.Duration.minutes(30)),
     });
 
-    // Queue permissions
-    fetchMatchQueue.grantSendMessages(getMatchIdsForSummonerLambda);
-    getMatchIdsForSummonerLambda.addEnvironment('FETCH_MATCH_QUEUE_URL', fetchMatchQueue.queueUrl);
+    // Queue message send permissions
+    matchIdProcessingQueue.grantSendMessages(getMatchIdsForSummonerLambda);
+    getMatchIdsForSummonerLambda.addEnvironment('FETCH_MATCH_QUEUE_URL', matchIdProcessingQueue.queueUrl);
 
     summonerMatchFetchRequestQueue.grantSendMessages(sourceMatchesLambda);
     sourceMatchesLambda.addEnvironment('SUMMONER_MATCH_FETCH_REQUEST_QUEUE_URL', summonerMatchFetchRequestQueue.queueUrl);
 
-    // DynamoDB permissions
-    matchesDynamoDbTable.grantReadData(checkIfMatchExistsLambda);
-    checkIfMatchExistsLambda.addEnvironment(
-      MATCHES_TABLE_NAME_ENV_KEY,
-      matchesDynamoDbTable.tableName,
-    );
+    // Queue message consume permissions
+    getMatchIdsForSummonerLambda.addEventSource(new SqsEventSource(summonerMatchFetchRequestQueue));
+    summonerMatchFetchRequestQueue.grantConsumeMessages(getMatchIdsForSummonerLambda);
 
-    matchesDynamoDbTable.grantWriteData(fetchMatchAndInsertLambda);
-    fetchMatchAndInsertLambda.addEnvironment(
-      MATCHES_TABLE_NAME_ENV_KEY,
-      matchesDynamoDbTable.tableName,
-    );
+    // State machine start execution
+    matchSourceStateMachine.grantStartExecution(matchSourceStateMachineTriggerLambda);
 
     // Grant access to Riot API key
     grantSecret(riotApiSecret, summonerSourceLambda, RIOT_API_SECRET_ENV_KEY);
     grantSecret(riotApiSecret, getMatchIdsForSummonerLambda, RIOT_API_SECRET_ENV_KEY);
-    grantSecret(riotApiSecret, fetchMatchAndInsertLambda, RIOT_API_SECRET_ENV_KEY);
+    grantSecret(riotApiSecret, fetchAndInsertMatchDataLambda, RIOT_API_SECRET_ENV_KEY);
 
     // Grant acceess to DB connection parameters
     grantSecret(auroraClusterSecret, summonerSourceLambda, DB_SECRET_ENV_KEY);
     auroraCluster.connections.allowDefaultPortFrom(summonerSourceLambda);
     grantSecret(auroraClusterSecret, sourceMatchesLambda, DB_SECRET_ENV_KEY);
     auroraCluster.connections.allowDefaultPortFrom(sourceMatchesLambda);
+    grantSecret(auroraClusterSecret, sourceMatchesLambda, DB_SECRET_ENV_KEY);
+    auroraCluster.connections.allowDefaultPortFrom(checkMatchExistenceLambda);
+    grantSecret(auroraClusterSecret, sourceMatchesLambda, DB_SECRET_ENV_KEY);
+    auroraCluster.connections.allowDefaultPortFrom(fetchAndInsertMatchDataLambda);
   }
 }
