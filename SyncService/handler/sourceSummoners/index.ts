@@ -32,6 +32,6 @@ export const handler = () => {
 
     const dataSource = await databaseManager.getDataSource();
 
-    dataSource.manager.save(player);
+    await dataSource.manager.save(player);
   });
 };
