@@ -40,10 +40,8 @@ class Config {
   }
 
   getRiotConfig() {
-    if (!process.env.RIOT_API_SECRET) throw new Error('Unable to create RiotConfig instance. RIOT_API_SECRET environment variable is not defined');
-
     if (!this.riotConfig) {
-      this.riotConfig = new RiotConfig({ apiKey: process.env.RIOT_API_SECRET });
+      this.riotConfig = new RiotConfig(this.getManagerConfig().getSecretsCacheManager());
     }
     return this.riotConfig;
   }

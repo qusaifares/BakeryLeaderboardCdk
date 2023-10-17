@@ -24,7 +24,6 @@ export class BakeryLeaderboardStack extends cdk.Stack {
 
     const RIOT_API_SECRET_ENV_KEY = 'RIOT_API_SECRET';
     const DB_SECRET_ENV_KEY = 'DB_SECRET';
-    const MATCHES_TABLE_NAME_ENV_KEY = 'MATCHES_TABLE_NAME';
 
     // Create a new VPC or use an existing one
     const vpc = new ec2.Vpc(this, 'MyVpc');
@@ -38,12 +37,13 @@ export class BakeryLeaderboardStack extends cdk.Stack {
       engine: rds.DatabaseClusterEngine.auroraPostgres({
         version: rds.AuroraPostgresEngineVersion.VER_15_3,
       }),
-      credentials: rds.Credentials.fromGeneratedSecret('admin'), // auto-generate the password
-      instanceProps: {
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.SMALL),
-        vpc,
-      },
+      credentials: rds.Credentials.fromGeneratedSecret('qusai'), // auto-generate the password
+      readers: [rds.ClusterInstance.serverlessV2('Reader1')],
+      writer: rds.ClusterInstance.provisioned('Writer'),
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      deletionProtection: true,
       defaultDatabaseName: 'BakeryLeaderboard',
+      vpc,
     });
 
     const auroraClusterSecret = auroraCluster.secret || new secretsmanager.Secret(this, 'AuroraClusterSecret', {

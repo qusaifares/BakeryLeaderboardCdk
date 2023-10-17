@@ -4,7 +4,7 @@ import { SFN } from '@aws-sdk/client-sfn';
 import { Lambda } from '@aws-sdk/client-lambda';
 import { AwsRegion } from '../types/enum/AwsRegion';
 
-const DEFAULT_REGION = AwsRegion.US_EAST_1;
+const DEFAULT_REGION = AwsRegion.US_EAST_2;
 
 export interface AwsConfigOptions {
 }
