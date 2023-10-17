@@ -3,5 +3,5 @@ export interface DatabaseCredentials {
   username: string;
   password: string;
   port: number;
-  dbName: string;
+  dbname: string;
 }

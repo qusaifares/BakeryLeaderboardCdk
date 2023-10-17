@@ -15,7 +15,7 @@ export class Player {
   // @Column()
   //   displayName: string;
 
-  @Column({ array: true })
+  @Column({ array: true, default: [] })
     keyWords: string[];
 
   @OneToMany(() => Summoner, (summoner) => summoner.player)

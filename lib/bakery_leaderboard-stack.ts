@@ -6,7 +6,6 @@ import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as lambdanodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as events from 'aws-cdk-lib/aws-events';
@@ -52,21 +51,23 @@ export class BakeryLeaderboardStack extends cdk.Stack {
     });
 
     const summonerSourceLambda = new lambdanodejs.NodejsFunction(this, 'SummonerSourceLambda', {
-      runtime: lambda.Runtime.NODEJS_18_X,
       entry: path.join(LAMBDA_HANDLERS_PATH, 'sourceSummoners/index.ts'),
       handler: 'handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
       vpc,
     });
 
     const sourceMatchesLambda = new lambdanodejs.NodejsFunction(this, 'SourceMatchesLambda', {
       entry: path.join(LAMBDA_HANDLERS_PATH, 'sourceMatches/index.ts'),
       handler: 'handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
       vpc,
     });
 
     const getMatchIdsForSummonerLambda = new lambdanodejs.NodejsFunction(this, 'GetMatchIdsForSummonerLambda', {
       entry: path.join(LAMBDA_HANDLERS_PATH, 'getMatchIdsForSummoner/index.ts'),
       handler: 'handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
       vpc,
     });
 
@@ -80,11 +81,13 @@ export class BakeryLeaderboardStack extends cdk.Stack {
     const checkMatchExistenceLambda = new lambdanodejs.NodejsFunction(this, 'CheckMatchExistenceLambda', {
       entry: path.join(LAMBDA_HANDLERS_PATH, 'checkMatchExistence/index.ts'),
       handler: 'handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
       vpc,
     });
     const fetchAndInsertMatchDataLambda = new lambdanodejs.NodejsFunction(this, 'FetchAndInsertMatchDataLambda', {
       entry: path.join(LAMBDA_HANDLERS_PATH, 'fetchAndInsertMatchData/index.ts'),
       handler: 'handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
       vpc,
     });
 
@@ -108,10 +111,17 @@ export class BakeryLeaderboardStack extends cdk.Stack {
     const matchSourceStateMachineTriggerLambda = new lambdanodejs.NodejsFunction(this, 'MatchSourceStateMachineTriggerLambda', {
       entry: path.join(LAMBDA_HANDLERS_PATH, 'matchSourceStateMachineTrigger/index.ts'),
       handler: 'handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
       environment: {
         STATE_MACHINE_ARN: matchSourceStateMachine.stateMachineArn,
       },
       vpc,
+    });
+
+    const syncSummonerStatsLambda = new lambdanodejs.NodejsFunction(this, 'SyncSummonerStatsLambda', {
+      entry: path.join(LAMBDA_HANDLERS_PATH, 'syncSummonerStats/index.ts'),
+      handler: 'handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
     });
 
     const sourceMatchesEvent = new events.Rule(this, 'SourceMatchesEvent', {
@@ -129,6 +139,10 @@ export class BakeryLeaderboardStack extends cdk.Stack {
     // Queue message consume permissions
     getMatchIdsForSummonerLambda.addEventSource(new SqsEventSource(summonerMatchFetchRequestQueue));
     summonerMatchFetchRequestQueue.grantConsumeMessages(getMatchIdsForSummonerLambda);
+
+    // Lambda trigger permission
+    syncSummonerStatsLambda.grantInvoke(fetchAndInsertMatchDataLambda);
+    fetchAndInsertMatchDataLambda.addEnvironment('SYNC_SUMMONER_STATS_LAMBDA_ARN', syncSummonerStatsLambda.functionArn);
 
     // State machine start execution
     matchSourceStateMachine.grantStartExecution(matchSourceStateMachineTriggerLambda);

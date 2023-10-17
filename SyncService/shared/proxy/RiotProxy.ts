@@ -31,4 +31,14 @@ export class RiotProxy {
   async getMatchById(id: string) {
     return (await this.lolApi.MatchV5.get(id, this.config.regionGroup)).response;
   }
+
+  async getLeaguesBySummonerId(summonerId: string) {
+    return (await this.lolApi.League.bySummoner(summonerId, this.config.region)).response;
+  }
+
+  async getSoloQueueLeagueBySummonerId(summonerId: string) {
+    const leagues = (await this.lolApi.League.bySummoner(summonerId, this.config.region)).response;
+
+    return leagues.find((league) => league.queueType === `${this.config.soloQueueId}`) || null;
+  }
 }

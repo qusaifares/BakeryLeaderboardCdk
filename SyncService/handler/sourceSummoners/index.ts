@@ -1,5 +1,6 @@
+import 'dotenv/config';
 import { config } from '../../shared/config/Config';
-import { Player, Summoner } from '../../shared/data/entities';
+import { Player, Summoner } from '../../shared/data/entity';
 import seedData from './summonerSeedData.json';
 
 export const handler = () => {

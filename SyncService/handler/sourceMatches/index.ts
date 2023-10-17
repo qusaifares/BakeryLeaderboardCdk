@@ -1,7 +1,8 @@
+import 'dotenv/config';
 import 'reflect-metadata';
 import { SendMessageBatchCommandInput } from '@aws-sdk/client-sqs';
 import { config } from '../../shared/config/Config';
-import { Summoner } from '../../shared/data/entities';
+import { Summoner } from '../../shared/data/entity';
 import { chunkArray } from '../../shared/utils/chunkArray';
 import { SummonerMatchFetchRequetMessage } from '../../shared/types/message/SummonerMatchFetchRequestMessage';
 

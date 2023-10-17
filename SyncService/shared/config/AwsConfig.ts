@@ -1,5 +1,7 @@
 import { SecretsManager } from '@aws-sdk/client-secrets-manager';
 import { SQS } from '@aws-sdk/client-sqs';
+import { SFN } from '@aws-sdk/client-sfn';
+import { Lambda } from '@aws-sdk/client-lambda';
 import { AwsRegion } from '../types/enum/AwsRegion';
 
 const DEFAULT_REGION = AwsRegion.US_EAST_1;
@@ -13,6 +15,10 @@ export class AwsConfig {
   private secretsManager: SecretsManager;
 
   private sqs: SQS;
+
+  private stepFunctions: SFN;
+
+  private lambda: Lambda;
 
   constructor() {
     this.region = process.env.AWS_REGION as AwsRegion || DEFAULT_REGION;
@@ -30,5 +36,19 @@ export class AwsConfig {
       this.sqs = new SQS();
     }
     return this.sqs;
+  }
+
+  public getStepFunctions(): SFN {
+    if (!this.stepFunctions) {
+      this.stepFunctions = new SFN();
+    }
+    return this.stepFunctions;
+  }
+
+  public getLambda(): Lambda {
+    if (!this.lambda) {
+      this.lambda = new Lambda();
+    }
+    return this.lambda;
   }
 }

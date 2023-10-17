@@ -1,6 +1,7 @@
+import 'dotenv/config';
 import { SQSEvent } from 'aws-lambda';
 import { SendMessageBatchCommandInput, SendMessageBatchRequestEntry } from '@aws-sdk/client-sqs';
-import { SummonerMatchFetchRequetMessage } from '../../shared/types/message/SummonerMatchFetchRequestMessage';
+import { SummonerMatchFetchRequetMessage as SummonerMatchFetchRequestMessage } from '../../shared/types/message/SummonerMatchFetchRequestMessage';
 import { config } from '../../shared/config/Config';
 import { TimeMeasurement } from '../../shared/utils/TimeMeasurement';
 import { chunkArray } from '../../shared/utils/chunkArray';
@@ -21,7 +22,7 @@ export const handler = async (event: SQSEvent) => {
 
   // Get all match IDs
   const matchIds: string[] = (await Promise.all(event.Records.map(async (record) => {
-    const message: SummonerMatchFetchRequetMessage = JSON.parse(record.body);
+    const message: SummonerMatchFetchRequestMessage = JSON.parse(record.body);
 
     return riotProxy.getMatchIdsByPuuid(
       message.puuid,

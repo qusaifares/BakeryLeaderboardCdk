@@ -1,6 +1,10 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import {
+  Column, Entity, ManyToOne, PrimaryColumn,
+} from 'typeorm';
 import { PlayerRole } from '../../types/enum/PlayerRole';
 import { TeamId } from '../../types/enum/TeamId';
+// eslint-disable-next-line import/no-cycle
+import { Match } from './Match';
 
 @Entity()
 export class MatchSummoner {
@@ -10,11 +14,11 @@ export class MatchSummoner {
   @PrimaryColumn()
     summonerId: string;
 
-  @Column({ type: 'enum', enum: PlayerRole })
-    position: PlayerRole;
+  @Column({ type: 'enum', enum: PlayerRole, nullable: true })
+    position?: PlayerRole;
 
   @Column({ type: 'enum', enum: TeamId })
-    team: TeamId;
+    teamId: TeamId;
 
   @Column()
     championId: number;
@@ -45,9 +49,18 @@ export class MatchSummoner {
   @Column()
     healingDone: number;
 
-  // Efficiency Stats
+  // Team Stats
   @Column()
-    killParticipation: number;
+    teamKills: number;
+
+  @Column()
+    teamDeaths: number;
+
+  @Column()
+    teamGoldEarned: number;
+
+  @Column()
+    teamDamageDealtToChampions: number;
 
   // Economy Stats
   @Column()
@@ -61,8 +74,17 @@ export class MatchSummoner {
     visionScore: number;
 
   @Column()
-    gameTime: number;
+    gameDuration: number;
 
-  @Column({ type: 'timestamp' })
-    gameCreationTimestamp: Date;
+  @Column({ array: true, default: [] })
+    allyChampionIds: number[];
+
+  @Column({ array: true, default: [] })
+    enemyChampionIds: number[];
+
+  @Column()
+    gameCreationTime: number;
+
+  @ManyToOne(() => Match, (match) => match.summoners)
+    match: Match;
 }
