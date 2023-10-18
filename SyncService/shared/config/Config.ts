@@ -14,12 +14,17 @@ class Config {
 
   // constructor() {}
 
+  getRiotConfig() {
+    if (!this.riotConfig) {
+      this.riotConfig = new RiotConfig(this.getAwsConfig().getSecretsCacheManager());
+    }
+    return this.riotConfig;
+  }
+
   getManagerConfig() {
     if (!this.managerConfig) {
       this.managerConfig = new ManagerConfig(
         this.getAwsConfig(),
-        this.getRiotConfig(),
-        this.getProxyConfig(),
       );
     }
     return this.managerConfig;
@@ -27,7 +32,7 @@ class Config {
 
   getProxyConfig() {
     if (!this.proxyConfig) {
-      this.proxyConfig = new ProxyConfig(this.getAwsConfig(), this.getRiotConfig());
+      this.proxyConfig = new ProxyConfig(this.getRiotConfig());
     }
     return this.proxyConfig;
   }
@@ -37,13 +42,6 @@ class Config {
       this.awsConfig = new AwsConfig();
     }
     return this.awsConfig;
-  }
-
-  getRiotConfig() {
-    if (!this.riotConfig) {
-      this.riotConfig = new RiotConfig(this.getManagerConfig().getSecretsCacheManager());
-    }
-    return this.riotConfig;
   }
 }
 

@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import {
   Column, Entity, OneToMany, PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -9,15 +10,15 @@ export class Player {
   @PrimaryGeneratedColumn('uuid')
     id: string;
 
-  @Column()
+  @Column({ type: 'varchar', unique: true })
     discordId: string;
 
-  // @Column()
-  //   displayName: string;
+  @Column({ type: 'varchar' })
+    name: string;
 
-  @Column({ array: true, default: [] })
+  @Column({ type: 'varchar', array: true, default: '{}' })
     keyWords: string[];
 
-  @OneToMany(() => Summoner, (summoner) => summoner.player)
+  @OneToMany(() => Summoner, (summoner) => summoner.player, { cascade: true })
     summoners: Summoner[];
 }

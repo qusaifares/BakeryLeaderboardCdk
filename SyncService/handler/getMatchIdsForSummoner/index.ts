@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import 'dotenv/config';
 import { SQSEvent } from 'aws-lambda';
 import { SendMessageBatchCommandInput, SendMessageBatchRequestEntry } from '@aws-sdk/client-sqs';
@@ -10,11 +11,11 @@ import { FetchMatchRequestMessage } from '../../shared/types/message/FetchMatchR
 const BATCH_SIZE = 10;
 
 export const handler = async (event: SQSEvent) => {
+  console.log('Received event:', event);
   const { FETCH_MATCH_QUEUE_URL } = process.env;
 
   if (!FETCH_MATCH_QUEUE_URL) {
-    console.log('FETCH_MATCH_QUEUE_URL was not passed in for event: ', event);
-    return;
+    throw new Error(`FETCH_MATCH_QUEUE_URL was not passed in for event: ${event}`);
   }
 
   const riotProxy = config.getProxyConfig().getRiotProxy();
@@ -32,6 +33,8 @@ export const handler = async (event: SQSEvent) => {
 
   const uniqueMatchIds = [...new Set(matchIds)];
 
+  console.log(`Received ${matchIds.length} match IDs, ${uniqueMatchIds.length} of which are unique.`, uniqueMatchIds);
+
   const matchIdMessages: FetchMatchRequestMessage[] = uniqueMatchIds
     .map((matchId) => ({ matchId }));
 
@@ -45,12 +48,16 @@ export const handler = async (event: SQSEvent) => {
     Entries: entryChunk,
   }));
 
-  batchedMessages.forEach(async (batch) => {
+  console.log(`Sending ${batchedMessages.length} batch messages`);
+
+  return Promise.allSettled(batchedMessages.map(async (batch) => {
     try {
       const result = await sqs.sendMessageBatch(batch);
       console.log('Sent batch message. ', result);
+      return result;
     } catch (error) {
       console.error('Failed to send batch message. ', error);
+      throw error;
     }
-  });
+  }));
 };

@@ -2,10 +2,13 @@
   "name": "bakery_leaderboard",
   "version": "0.1.0",
   "bin": {
-    "bakery_leaderboard": "bin/bakery_leaderboard.js"
+    "bakery_leaderboard": "bin/bakery_leaderboard.bundle.js"
   },
   "scripts": {
-    "build": "tsc",
+    "bundle": "esbuild ./bin/bakery_leaderboard.js --outfile=./bin/bakery_leaderboard.bundle.js",
+    "build": "tsc && npm run bundle",
+    "synth": "npm run build && cdk synth",
+    "deploy": "NODE_ENV=production cdk deploy",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
@@ -19,6 +22,7 @@
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
     "aws-cdk": "2.100.0",
+    "esbuild": "^0.19.5",
     "eslint": "^8.51.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.1.0",

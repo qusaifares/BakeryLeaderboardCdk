@@ -1,5 +1,5 @@
 import {
-  Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique,
+  Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique,
 } from 'typeorm';
 import { Division } from '../../types/enum/Division';
 import { Tier } from '../../types/enum/Tier';
@@ -9,13 +9,13 @@ import { Summoner } from './Summoner';
 @Entity()
 @Unique('UQ_SUMMONER_DATE', ['summonerId', 'snapshotDate'])
 export class RankSnapshot {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
     id: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
     summonerId: string;
 
-  @Column()
+  @Column({ type: 'integer' })
     seasonId: number;
 
   @Column({ type: 'enum', enum: Tier })
@@ -24,12 +24,13 @@ export class RankSnapshot {
   @Column({ type: 'enum', enum: Division })
     division: Division;
 
-  @Column()
+  @Column({ type: 'integer' })
     leaguePoints: number;
 
-  @Column()
+  @Column({ type: 'timestamp' })
     snapshotDate: Date;
 
   @ManyToOne(() => Summoner, (summoner) => summoner.rankSnapshots)
+  @JoinColumn({ name: 'summonerId' })
     summoner: Summoner;
 }

@@ -1,1 +1,22 @@
-export const validSummonerIds: string[] = [];
+export const validSummonerIds: string[] = [
+  'S1aPn-DgO5exgsBJpxkKcR5_LYqbnlybTqPycPAQL_TfxHI',
+  'kS02_iyk-e_FAoXDC__xa4zgE0qea7DnynOf1pzlB7iYobo',
+  'MBzhTlnmT7isY-yJ49s6fSO0XgzT61lHjwFOIi2s-7ttazQq',
+  'HzqAuQFQyA4WrB8t6A5nXkA0DieYDYymfTi5ibues1Y_qhjv',
+  'mBsx0LWJe1zWoqwjIShg8QlQe0c_pTTLrhtTzDwS0USxNn0',
+  'gif-N6v5qCoOcxoPCE2fk_oRkaDQ84QNlvEeAHHQ3PVF14E',
+  'NZIy13vxxKlTlrQGJFCUzD45sBF6YkNSgYishoJNX3AI6SI',
+  'lNCcPmDpkU6p3fM9kEjDFNGPBo2x9fnCtTUzaRzWOdLeDtY',
+  'hjbYklIKlZXNHmmJNXM_XWIcahX8ZcTVx_wC8ZmhyvqFqME',
+  'wIQH0769h2Sfo5fhhoi0H687bBN9pjc9IqMN3cd-A4haGPQ',
+  'WQrw_nAF9pnZv_1tp4yqjO7flclBl4jgT9dbT5jlfrV9inM',
+  'ePnE6UcXW7oZIx3I8RYLnhJ8L8eCD5mifm4Vmsz4N6vjs9E',
+  'qLtwS_fPtD_b_nyYkM64WUQp8aQjrr9Jit38-5q3ETeknUQ',
+  'hQkATbppWDH7D16T5Yodo29ppeDEHtEAhJvS3h7RDF7uyp2y',
+  '4g1XojyQeFCKlEykdh1SJqDTF4p5JutWHLqq2HUS8uzHTbs',
+  'swcocl09pcbuDaeVZJQ_gUazvxjsu2hn7zwBgPNFpduMiCc',
+  '5xtwRPfjwPdPYKJurDSq4dzVp-ds_a_yLE0cdnyhJjVVI3E',
+  'fWhBujQDvqf393MNAhO8FbG22yqJ6Jx5feirUJhlTA5UqGs',
+  'H9ZY2VC-geJpU46Uhn6YF7GUxcsU5C0nHQbI38ZTtv3Zsmc',
+  '63HnpjIG9ukot4u9JSSpR3qPpC6np-uD0xnsp2Z58U7gVyQ',
+];

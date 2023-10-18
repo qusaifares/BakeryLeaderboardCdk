@@ -16,6 +16,8 @@ import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import path = require('path');
 import grantSecret from '../util/grantSecret';
+import { setLambdaNodeEnv } from '../util/setLambdaNodeEnv';
+import { getPublicIp } from '../util/getPublicIp';
 
 const LAMBDA_HANDLERS_PATH = path.join(__dirname, '../SyncService/handler');
 
@@ -33,6 +35,38 @@ export class BakeryLeaderboardStack extends cdk.Stack {
       secretName: 'RIOT_API',
     });
 
+    const ec2SecurityGroup = new ec2.SecurityGroup(this, 'Ec2SecurityGroup', {
+      vpc,
+      description: 'Security Group for EC2 instance',
+    });
+
+    const rdsSecurityGroup = new ec2.SecurityGroup(this, 'RdsSecurityGroup', {
+      vpc,
+      description: 'Allow whitelisted IP to access port 5432',
+      allowAllOutbound: true,
+    });
+
+    getPublicIp().then((ip) => {
+      if (!ip) return;
+
+      ec2SecurityGroup.addIngressRule(ec2.Peer.ipv4(`${ip}/32`), ec2.Port.tcp(22), 'Allow SSH access from my IP');
+    });
+    rdsSecurityGroup.addIngressRule(ec2SecurityGroup, ec2.Port.tcp(5432), 'Allow postgres traffic from EC2 SG');
+
+    const ec2Instance = new ec2.Instance(this, 'DatabaseProxyInstance', {
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
+      machineImage: new ec2.AmazonLinuxImage({
+        generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
+      }),
+      vpc,
+      associatePublicIpAddress: true,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PUBLIC,
+      },
+      securityGroup: ec2SecurityGroup,
+      keyName: 'qusai-us-east-2',
+    });
+
     // Define the Aurora Database cluster
     const auroraCluster = new rds.DatabaseCluster(this, 'BakeryLeaderboardDatabase', {
       engine: rds.DatabaseClusterEngine.auroraPostgres({
@@ -41,10 +75,11 @@ export class BakeryLeaderboardStack extends cdk.Stack {
       credentials: rds.Credentials.fromGeneratedSecret('qusai'), // auto-generate the password
       readers: [rds.ClusterInstance.serverlessV2('Reader1')],
       writer: rds.ClusterInstance.provisioned('Writer'),
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      deletionProtection: true,
+      // removalPolicy: cdk.RemovalPolicy.RETAIN,
+      // deletionProtection: true,
       defaultDatabaseName: 'BakeryLeaderboard',
       vpc,
+      securityGroups: [rdsSecurityGroup],
     });
 
     const auroraClusterSecret = auroraCluster.secret || new secretsmanager.Secret(this, 'AuroraClusterSecret', {
@@ -56,6 +91,7 @@ export class BakeryLeaderboardStack extends cdk.Stack {
       handler: 'handler',
       runtime: lambda.Runtime.NODEJS_18_X,
       vpc,
+      timeout: cdk.Duration.seconds(15),
     });
 
     const sourceMatchesLambda = new lambdanodejs.NodejsFunction(this, 'SourceMatchesLambda', {
@@ -63,6 +99,7 @@ export class BakeryLeaderboardStack extends cdk.Stack {
       handler: 'handler',
       runtime: lambda.Runtime.NODEJS_18_X,
       vpc,
+      timeout: cdk.Duration.seconds(15),
     });
 
     const getMatchIdsForSummonerLambda = new lambdanodejs.NodejsFunction(this, 'GetMatchIdsForSummonerLambda', {
@@ -70,6 +107,7 @@ export class BakeryLeaderboardStack extends cdk.Stack {
       handler: 'handler',
       runtime: lambda.Runtime.NODEJS_18_X,
       vpc,
+      timeout: cdk.Duration.seconds(5),
     });
 
     const summonerMatchFetchRequestQueue = new sqs.Queue(this, 'SummonerMatchFetchRequestQueue', {
@@ -84,16 +122,19 @@ export class BakeryLeaderboardStack extends cdk.Stack {
       handler: 'handler',
       runtime: lambda.Runtime.NODEJS_18_X,
       vpc,
+      timeout: cdk.Duration.seconds(5),
     });
     const fetchAndInsertMatchDataLambda = new lambdanodejs.NodejsFunction(this, 'FetchAndInsertMatchDataLambda', {
       entry: path.join(LAMBDA_HANDLERS_PATH, 'fetchAndInsertMatchData/index.ts'),
       handler: 'handler',
       runtime: lambda.Runtime.NODEJS_18_X,
       vpc,
+      timeout: cdk.Duration.seconds(10),
     });
 
     const checkIfMatchExistsTask = new tasks.LambdaInvoke(this, 'CheckIfMatchExistsInvocation', {
       lambdaFunction: checkMatchExistenceLambda,
+      outputPath: '$.Payload',
     });
 
     const fetchMatchAndInsertTask = new tasks.LambdaInvoke(this, 'FetchMatchAndInsertInvocation', {
@@ -123,6 +164,8 @@ export class BakeryLeaderboardStack extends cdk.Stack {
       entry: path.join(LAMBDA_HANDLERS_PATH, 'syncSummonerStats/index.ts'),
       handler: 'handler',
       runtime: lambda.Runtime.NODEJS_18_X,
+      vpc,
+      timeout: cdk.Duration.seconds(5),
     });
 
     const sourceMatchesEvent = new events.Rule(this, 'SourceMatchesEvent', {
@@ -141,6 +184,9 @@ export class BakeryLeaderboardStack extends cdk.Stack {
     getMatchIdsForSummonerLambda.addEventSource(new SqsEventSource(summonerMatchFetchRequestQueue));
     summonerMatchFetchRequestQueue.grantConsumeMessages(getMatchIdsForSummonerLambda);
 
+    matchSourceStateMachineTriggerLambda.addEventSource(new SqsEventSource(matchIdProcessingQueue));
+    matchIdProcessingQueue.grantConsumeMessages(matchSourceStateMachineTriggerLambda);
+
     // Lambda trigger permission
     syncSummonerStatsLambda.grantInvoke(fetchAndInsertMatchDataLambda);
     fetchAndInsertMatchDataLambda.addEnvironment('SYNC_SUMMONER_STATS_LAMBDA_ARN', syncSummonerStatsLambda.functionArn);
@@ -158,9 +204,21 @@ export class BakeryLeaderboardStack extends cdk.Stack {
     auroraCluster.connections.allowDefaultPortFrom(summonerSourceLambda);
     grantSecret(auroraClusterSecret, sourceMatchesLambda, DB_SECRET_ENV_KEY);
     auroraCluster.connections.allowDefaultPortFrom(sourceMatchesLambda);
-    grantSecret(auroraClusterSecret, sourceMatchesLambda, DB_SECRET_ENV_KEY);
+    grantSecret(auroraClusterSecret, checkMatchExistenceLambda, DB_SECRET_ENV_KEY);
     auroraCluster.connections.allowDefaultPortFrom(checkMatchExistenceLambda);
-    grantSecret(auroraClusterSecret, sourceMatchesLambda, DB_SECRET_ENV_KEY);
+    grantSecret(auroraClusterSecret, fetchAndInsertMatchDataLambda, DB_SECRET_ENV_KEY);
     auroraCluster.connections.allowDefaultPortFrom(fetchAndInsertMatchDataLambda);
+    grantSecret(auroraClusterSecret, syncSummonerStatsLambda, DB_SECRET_ENV_KEY);
+    auroraCluster.connections.allowDefaultPortFrom(syncSummonerStatsLambda);
+
+    setLambdaNodeEnv(
+      summonerSourceLambda,
+      sourceMatchesLambda,
+      getMatchIdsForSummonerLambda,
+      matchSourceStateMachineTriggerLambda,
+      checkMatchExistenceLambda,
+      fetchAndInsertMatchDataLambda,
+      syncSummonerStatsLambda,
+    );
   }
 }

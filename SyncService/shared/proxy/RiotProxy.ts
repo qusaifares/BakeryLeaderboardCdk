@@ -10,14 +10,17 @@ export class RiotProxy {
 
   private async getLolApi(): Promise<LolApi> {
     if (!this.lolApi) {
-      this.lolApi = new LolApi({ key: await this.config.getApiKey() });
+      const apiKey = (await this.config.getApiKey()).trim();
+      this.lolApi = new LolApi({ key: apiKey });
     }
     return this.lolApi;
   }
 
   async getSummonerByName(summonerName: string) {
     const lolApi = await this.getLolApi();
-    return (await lolApi.Summoner.getByName(summonerName, this.config.region)).response;
+    const { response } = await lolApi.Summoner.getByName(summonerName, this.config.region);
+    console.log('getSummonerByName response:', response);
+    return response;
   }
 
   async getMatchIdsByPuuid(puuid: string, interval: TimeMeasurement) {
@@ -26,7 +29,7 @@ export class RiotProxy {
 
     const lolApi = await this.getLolApi();
 
-    return (await lolApi.MatchV5
+    const { response } = await lolApi.MatchV5
       .list(
         puuid,
         this.config.regionGroup,
@@ -34,19 +37,25 @@ export class RiotProxy {
           queue: this.config.soloQueueId,
           startTime,
         },
-      )).response;
+      );
+    console.log('getMatchIdsByPuuid response:', response);
+    return response;
   }
 
   async getMatchById(id: string) {
     const lolApi = await this.getLolApi();
 
-    return (await lolApi.MatchV5.get(id, this.config.regionGroup)).response;
+    const { response } = await lolApi.MatchV5.get(id, this.config.regionGroup);
+    console.log('getMatchById response:', response);
+    return response;
   }
 
   async getLeaguesBySummonerId(summonerId: string) {
     const lolApi = await this.getLolApi();
 
-    return (await lolApi.League.bySummoner(summonerId, this.config.region)).response;
+    const { response } = await lolApi.League.bySummoner(summonerId, this.config.region);
+    console.log('getLeaguesBySummonerId response:', response);
+    return response;
   }
 
   async getSoloQueueLeagueBySummonerId(summonerId: string) {
@@ -54,6 +63,8 @@ export class RiotProxy {
 
     const leagues = (await lolApi.League.bySummoner(summonerId, this.config.region)).response;
 
-    return leagues.find((league) => league.queueType === this.config.soloQueueType) || null;
+    const league = leagues.find((l) => l.queueType === this.config.soloQueueType) || null;
+    console.log('getSoloQueueLeagueBySummonerId response:', league);
+    return league;
   }
 }

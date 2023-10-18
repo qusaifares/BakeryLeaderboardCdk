@@ -1,90 +1,101 @@
 import {
-  Column, Entity, ManyToOne, PrimaryColumn,
+  Column, Entity, JoinColumn, ManyToOne, PrimaryColumn,
 } from 'typeorm';
-import { PlayerRole } from '../../types/enum/PlayerRole';
+import { Position } from '../../types/enum/Position';
 import { TeamId } from '../../types/enum/TeamId';
 // eslint-disable-next-line import/no-cycle
 import { Match } from './Match';
+// eslint-disable-next-line import/no-cycle
+import { Summoner } from './Summoner';
 
 @Entity()
 export class MatchSummoner {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'varchar' })
     matchId: string;
 
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'varchar' })
     summonerId: string;
 
-  @Column({ type: 'enum', enum: PlayerRole, nullable: true })
-    position?: PlayerRole;
+  @Column({ type: 'enum', enum: Position })
+    position: Position;
 
   @Column({ type: 'enum', enum: TeamId })
     teamId: TeamId;
 
-  @Column()
+  @Column({ type: 'integer' })
     championId: number;
 
-  @Column()
+  @Column({ type: 'boolean' })
     win: boolean;
 
   // Basic Stats
-  @Column()
+  @Column({ type: 'integer' })
     kills: number;
 
-  @Column()
+  @Column({ type: 'integer' })
     deaths: number;
 
-  @Column()
+  @Column({ type: 'integer' })
     assists: number;
 
-  @Column()
+  @Column({ type: 'integer' })
     totalMinionsKilled: number;
 
   // Combat Stats
-  @Column()
+  @Column({ type: 'integer' })
     damageToChampions: number;
 
-  @Column()
+  @Column({ type: 'integer' })
     damageTaken: number;
 
-  @Column()
+  @Column({ type: 'integer' })
     healingDone: number;
 
   // Team Stats
-  @Column()
+  @Column({ type: 'integer' })
     teamKills: number;
 
-  @Column()
+  @Column({ type: 'integer' })
     teamDeaths: number;
 
-  @Column()
+  @Column({ type: 'integer' })
     teamGoldEarned: number;
 
-  @Column()
+  @Column({ type: 'integer' })
     teamDamageDealtToChampions: number;
 
   // Economy Stats
-  @Column()
+  @Column({ type: 'integer' })
     goldEarned: number;
 
-  @Column()
+  @Column({ type: 'integer' })
     goldSpent: number;
 
   // Miscellaneous Stats
-  @Column()
+  @Column({ type: 'integer' })
     visionScore: number;
 
-  @Column()
+  @Column({ type: 'integer' })
     gameDuration: number;
 
-  @Column({ array: true, default: [] })
+  @Column({ type: 'integer', array: true, default: '{}' })
     allyChampionIds: number[];
 
-  @Column({ array: true, default: [] })
+  @Column({ type: 'integer', array: true, default: '{}' })
     enemyChampionIds: number[];
 
-  @Column()
-    gameCreationTime: number;
+  @Column({ type: 'timestamp' })
+    gameEndTimestamp: Date;
+
+  // Random
+  @Column({ type: 'integer' })
+    missingPings: number;
 
   @ManyToOne(() => Match, (match) => match.summoners)
+  @JoinColumn({ name: 'matchId' })
     match: Match;
+
+  @ManyToOne(() => Summoner, (summoner) => summoner.matches)
+  @JoinColumn({ name: 'summonerId' })
+    summoner: Summoner;
 }

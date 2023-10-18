@@ -4,4 +4,6 @@ export interface DatabaseCredentials {
   password: string;
   port: number;
   dbname: string;
+  engine: string;
+  dbClusterIdentifier?: string;
 }

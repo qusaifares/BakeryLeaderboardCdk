@@ -34,6 +34,7 @@ export const handler = async (event: SyncSummonerStatsRequestEvent) => {
   summonerStat.goldSpent += matchSummoner.goldSpent;
   summonerStat.totalVisionScore += matchSummoner.visionScore;
   summonerStat.totalGameTime += matchSummoner.gameDuration;
+  summonerStat.missingPings += matchSummoner.missingPings;
 
   try {
     const league = await riotProxy.getSoloQueueLeagueBySummonerId(summonerId);

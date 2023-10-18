@@ -7,31 +7,39 @@ import { Player } from './Player';
 import { SummonerStat } from './SummonerStat';
 // eslint-disable-next-line import/no-cycle
 import { RankSnapshot } from './RankSnapshot';
+// eslint-disable-next-line import/no-cycle
+import { MatchSummoner } from './MatchSummoner';
 
 @Entity()
 export class Summoner {
-  @PrimaryColumn()
-    summonerId: string;
+  @PrimaryColumn({ type: 'varchar' })
+    id: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
     playerId: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
     puuid: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
     accountId: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
     name: string;
 
-  @Column()
+  @Column({ type: 'varchar', default: '' })
+    riotIdName: string;
+
+  @Column({ type: 'varchar', default: '' })
+    riotIdTagline: string;
+
+  @Column({ type: 'integer' })
     profileIconId: number;
 
-  @Column()
+  @Column({ type: 'integer' })
     summonerLevel: number;
 
-  @Column({ default: true })
+  @Column({ type: 'boolean', default: true })
     shouldDisplay: boolean;
 
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
@@ -41,9 +49,12 @@ export class Summoner {
   @JoinColumn({ name: 'playerId' })
     player: Player;
 
+  @OneToMany(() => MatchSummoner, (match) => match.summoner, { cascade: true })
+    matches: MatchSummoner[];
+
   @OneToOne(() => SummonerStat, (stats) => stats.summoner)
     statistics: SummonerStat;
 
-  @OneToMany(() => RankSnapshot, (snapshot) => snapshot.summoner)
+  @OneToMany(() => RankSnapshot, (snapshot) => snapshot.summoner, { cascade: true })
     rankSnapshots: RankSnapshot[];
 }

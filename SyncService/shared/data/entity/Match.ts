@@ -8,18 +8,18 @@ import { MatchSummoner } from './MatchSummoner';
 
 @Entity()
 export class Match {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'varchar' })
     id: string;
 
   @Column({ type: 'jsonb', nullable: true })
     matchData: MatchV5DTOs.MatchDto;
 
-  @Column()
-    gameCreationTime: number;
+  @Column({ type: 'timestamp' })
+    gameEndTimestamp: Date;
 
-  @Column()
+  @Column({ type: 'integer' })
     gameDuration: number;
 
-  @OneToMany(() => MatchSummoner, (summoner) => summoner.match)
+  @OneToMany(() => MatchSummoner, (summoner) => summoner.match, { cascade: true })
     summoners: MatchSummoner[];
 }

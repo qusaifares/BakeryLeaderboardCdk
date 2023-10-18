@@ -1,5 +1,6 @@
-import { DataSource, DataSourceOptions } from 'typeorm';
 import path = require('path');
+import { DataSource } from 'typeorm';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { DatabaseCredentials } from '../types/DatabaseCredentials';
 import {
   Match, MatchSummoner, Player, RankSnapshot, Summoner, SummonerStat,
@@ -19,6 +20,7 @@ export class DatabaseManager {
     password: process.env.DB_PASSWORD as string,
     port: +(process.env.DB_PORT || 5432),
     dbname: process.env.DB_NAME as string,
+    engine: 'postgres',
   };
 
   constructor(
@@ -30,14 +32,18 @@ export class DatabaseManager {
   }
 
   public async getDataSource(): Promise<DataSource> {
+    if (!this.dataSource) {
+      const dataSourceOptions = await this.getDataSourceOptions();
+      console.log(`Connecting to host ${dataSourceOptions.host}`);
+      this.dataSource = new DataSource(dataSourceOptions);
+    }
+
     if (this.dataSource.isInitialized) return this.dataSource;
 
-    const dataSourceOptions = await this.getDataSourceOptions();
-    this.dataSource = new DataSource(dataSourceOptions);
     return this.dataSource.initialize();
   }
 
-  private async getDataSourceOptions(): Promise<DataSourceOptions> {
+  private async getDataSourceOptions(): Promise<PostgresConnectionOptions> {
     const {
       username, password, host, dbname: database, port,
     } = await this.getDbCredentials();
@@ -48,7 +54,7 @@ export class DatabaseManager {
       username,
       password,
       database,
-      synchronize: isDevelopment,
+      synchronize: true || isDevelopment,
       logging: true,
       entities: [Match, MatchSummoner, Player, Summoner, RankSnapshot, SummonerStat],
       subscribers: [path.join(__dirname, '../data/subscriber/*{.ts,.js}')],

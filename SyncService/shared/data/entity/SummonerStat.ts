@@ -8,7 +8,7 @@ import { Summoner } from './Summoner';
 
 @Entity()
 export class SummonerStat {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'varchar' })
     summonerId: string;
 
   @OneToOne(() => Summoner, (summoner) => summoner.statistics)
@@ -16,63 +16,63 @@ export class SummonerStat {
     summoner: Summoner;
 
   // Basic Stats
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     wins: number;
 
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     losses: number;
 
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     kills: number;
 
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     deaths: number;
 
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     assists: number;
 
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     totalMinionsKilled: number;
 
   // Combat Stats
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     damageToChampions: number;
 
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     damageTaken: number;
 
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     healingDone: number;
 
   // Team Stats
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     teamKills: number;
 
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     teamDeaths: number;
 
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     teamGoldEarned: number;
 
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     teamDamageDealtToChampions: number;
 
   // Economy Stats
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     goldEarned: number;
 
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     goldSpent: number;
 
   // Miscellaneous Stats
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     totalVisionScore: number;
 
-  @Column({ default: 0 })
+  @Column({ type: 'integer', default: 0 })
     totalGameTime: number;
 
   // Current Rank
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
     leagueId: string;
 
   @Column({ type: 'enum', enum: Tier, nullable: true })
@@ -81,8 +81,12 @@ export class SummonerStat {
   @Column({ type: 'enum', enum: Division, nullable: true })
     division: Division;
 
-  @Column({ nullable: true })
+  @Column({ type: 'integer', nullable: true })
     leaguePoints: number;
+
+  // Random
+  @Column({ type: 'integer' })
+    missingPings: number;
 
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
