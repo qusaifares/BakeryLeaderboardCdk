@@ -40,21 +40,23 @@ export const handler = async (event: MatchSourceStepFunctionEvent) => {
 
   console.log('Saved match.', savedMatch);
 
-  // TODO: Remove this tight coupling and make SyncSummonerStatsLambda run on a timer or event
-  if (SYNC_SUMMONER_STATS_LAMBDA_ARN) {
-    savedMatch.summoners.forEach(async (summoner) => {
-      const syncStatsLambdaPayload: SyncSummonerStatsRequestEvent = {
-        matchSummoner: summoner,
-      };
-
-      await lambda.invoke({
-        FunctionName: SYNC_SUMMONER_STATS_LAMBDA_ARN,
-        Payload: JSON.stringify(syncStatsLambdaPayload),
-      });
-    });
-  } else {
-    console.error(`SYNC_SUMMONER_STATS_LAMBDA_ARN was not passed into function for match ID: ${matchId}`);
+  if (!SYNC_SUMMONER_STATS_LAMBDA_ARN) {
+    throw new Error(`SYNC_SUMMONER_STATS_LAMBDA_ARN was not passed into function for match ID: ${matchId}`);
   }
+
+  console.log(`Invoking syncStats for ${savedMatch.summoners.length} summoners:`, savedMatch.summoners);
+  // TODO: Remove this tight coupling and make SyncSummonerStatsLambda run on a timer or event
+  return Promise.allSettled(savedMatch.summoners.map(async (summoner) => {
+    const syncStatsLambdaPayload: SyncSummonerStatsRequestEvent = {
+      matchSummoner: summoner,
+    };
+
+    return lambda.invoke({
+      FunctionName: SYNC_SUMMONER_STATS_LAMBDA_ARN,
+      Payload: JSON.stringify(syncStatsLambdaPayload),
+      InvocationType: 'Event',
+    });
+  }));
 };
 
 function buildMatchSummoner(
