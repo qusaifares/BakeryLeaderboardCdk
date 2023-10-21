@@ -16,6 +16,9 @@ phases:
       - npm run build
       - echo Synthesizing the CDK app...
       - npm run synth
+      - ls -al
+      - ls -al cdk.out/
+      - pwd
 artifacts:
   files:
     - build/**/*
