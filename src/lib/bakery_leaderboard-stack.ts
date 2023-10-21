@@ -18,7 +18,6 @@ import grantSecret from '../util/grantSecret';
 import { setLambdaNodeEnv } from '../util/setLambdaNodeEnv';
 import { getPublicIp } from '../util/getPublicIp';
 import { SourceMatchesEvent, SourceMatchesEventType } from '../SyncService/shared/types/message/SourceMatchesEvent';
-import { PipelineStack } from './stacks/pipeline-stack';
 import '../util/augmentation/string-augmentation';
 
 const LAMBDA_HANDLERS_PATH = path.join(__dirname, '../SyncService/handler');
@@ -26,8 +25,6 @@ const LAMBDA_HANDLERS_PATH = path.join(__dirname, '../SyncService/handler');
 export class BakeryLeaderboardStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-
-    const pipelineStack = new PipelineStack(this, 'PipelineStack');
 
     const RIOT_API_SECRET_ENV_KEY = 'RIOT_API_SECRET';
     const DB_SECRET_ENV_KEY = 'DB_SECRET';

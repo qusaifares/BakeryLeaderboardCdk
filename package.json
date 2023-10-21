@@ -8,7 +8,7 @@
     "bundle": "esbuild ./build/bin/bakery_leaderboard.js --outfile=./build/bin/bakery_leaderboard.bundle.js",
     "clean": "rimraf ./build",
     "build": "npm run clean && tsc",
-    "synth": "cdk synth > template.yaml",
+    "synth": "CDK_SYNTH_MODE=true cdk synth > template.yaml",
     "deploy": "NODE_ENV=production cdk deploy",
     "watch": "tsc -w",
     "test": "jest",
