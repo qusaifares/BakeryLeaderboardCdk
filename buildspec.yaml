@@ -23,5 +23,4 @@ artifacts:
   files:
     - build/**/*
     - cdk.out/**/*
-  discard-paths: yes
   
