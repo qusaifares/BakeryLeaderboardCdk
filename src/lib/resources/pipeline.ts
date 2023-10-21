@@ -89,7 +89,7 @@ const deployToStage = (stageName: Stage, inputArtifact: codepipeline.Artifact) =
   const cloudFormationAction = new codepipeline_actions.CloudFormationCreateUpdateStackAction({
     actionName: `CFN_Deploy_${capitalizedStageName}`,
     stackName: `LambdaStack-${capitalizedStageName}`,
-    templatePath: inputArtifact.atPath('template.yaml'), // path to CloudFormation template in the build artifact
+    templatePath: inputArtifact.atPath('cdk.out/template.yaml'), // path to CloudFormation template in the build artifact
     adminPermissions: true, // grants the action the permissions needed to create or update a stack
     runOrder: 1,
   });
