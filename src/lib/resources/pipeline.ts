@@ -62,24 +62,19 @@ export function createPipeline(scope: Construct) {
     actions: [buildAction],
   });
 
-  pipeline.addStage({
-    stageName: 'DeployToTest',
-    actions: [deployToStage(Stage.TEST, buildOutput)],
-  });
+  // pipeline.addStage({
+  //   stageName: 'Approval',
+  //   actions: [
+  //     new codepipeline_actions.ManualApprovalAction({
+  //       actionName: 'ManualApproval',
+  //       additionalInformation: 'Approve or Reject this change to deploy to Production',
+  //       runOrder: 1, // ensure this is the first action in the stage
+  //     }),
+  //   ],
+  // });
 
   pipeline.addStage({
-    stageName: 'Approval',
-    actions: [
-      new codepipeline_actions.ManualApprovalAction({
-        actionName: 'ManualApproval',
-        additionalInformation: 'Approve or Reject this change to deploy to Production',
-        runOrder: 1, // ensure this is the first action in the stage
-      }),
-    ],
-  });
-
-  pipeline.addStage({
-    stageName: 'DeployToProd',
+    stageName: 'Prod',
     actions: [deployToStage(Stage.PROD, buildOutput)],
   });
 }
@@ -88,7 +83,7 @@ const deployToStage = (stageName: Stage, inputArtifact: codepipeline.Artifact) =
   const capitalizedStageName = capitalized(stageName);
   const cloudFormationAction = new codepipeline_actions.CloudFormationCreateUpdateStackAction({
     actionName: `CFN_Deploy_${capitalizedStageName}`,
-    stackName: `LambdaStack-${capitalizedStageName}`,
+    stackName: 'BakeryLeaderboardStack',
     templatePath: inputArtifact.atPath('cdk.out/template.yaml'), // path to CloudFormation template in the build artifact
     adminPermissions: true, // grants the action the permissions needed to create or update a stack
     runOrder: 1,
