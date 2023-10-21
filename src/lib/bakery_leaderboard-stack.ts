@@ -19,6 +19,7 @@ import { setLambdaNodeEnv } from '../util/setLambdaNodeEnv';
 import { getPublicIp } from '../util/getPublicIp';
 import { SourceMatchesEvent, SourceMatchesEventType } from '../SyncService/shared/types/message/SourceMatchesEvent';
 import '../util/augmentation/string-augmentation';
+import { createPipeline } from './resources/pipeline';
 
 const LAMBDA_HANDLERS_PATH = path.join(__dirname, '../SyncService/handler');
 
@@ -28,6 +29,8 @@ export class BakeryLeaderboardStack extends cdk.Stack {
 
     const RIOT_API_SECRET_ENV_KEY = 'RIOT_API_SECRET';
     const DB_SECRET_ENV_KEY = 'DB_SECRET';
+
+    createPipeline(this);
 
     // Create a new VPC or use an existing one
     const vpc = new ec2.Vpc(this, 'MyVpc');
