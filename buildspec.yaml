@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Installing dependencies...
+      - npm install
+  pre_build:
+      - echo Linting and testing...
+      - npm run lint
+      - npm run test
+  build:
+    commands:
+      - echo Building...
+      - npm run build
+      - echo Synthesizing the CDK app...
+      - npx cdk synth
+artifacts:
+  files:
+    - build/**/*
+    - cdk.out/**/*
+  discard-paths: yes
+  

@@ -1,0 +1,10 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "BakeryLeaderboardStack"
+resolve_s3 = true
+s3_prefix = "BakeryLeaderboardStack"
+region = "us-east-2"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter=\"/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2\" BootstrapVersion=\"/cdk-bootstrap/hnb659fds/version\""
+image_repositories = []

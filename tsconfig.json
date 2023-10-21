@@ -23,10 +23,14 @@
     "strictPropertyInitialization": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "rootDir": "./src",
+    "outDir": "./build",
     "typeRoots": [
-      "./node_modules/@types"
+      "./node_modules/@types",
+      "./src/@types"
     ]
   },
+  "include": ["src/**/**.ts"],
   "exclude": [
     "node_modules",
     "cdk.out"

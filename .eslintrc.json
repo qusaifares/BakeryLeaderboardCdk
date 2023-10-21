@@ -9,6 +9,7 @@
     "no-console": "off",
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": "off",
-    "no-plusplus": "off"
+    "no-plusplus": "off",
+    "no-extend-native": "off"
   }
 }
