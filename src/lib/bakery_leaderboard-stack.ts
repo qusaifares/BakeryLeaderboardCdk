@@ -19,6 +19,7 @@ import { setLambdaNodeEnv } from '../util/setLambdaNodeEnv';
 import { getPublicIp } from '../util/getPublicIp';
 import { SourceMatchesEvent, SourceMatchesEventType } from '../SyncService/shared/types/message/SourceMatchesEvent';
 import { PipelineStack } from './stacks/pipeline-stack';
+import '../util/augmentation/string-augmentation';
 
 const LAMBDA_HANDLERS_PATH = path.join(__dirname, '../SyncService/handler');
 
@@ -76,7 +77,7 @@ export class BakeryLeaderboardStack extends cdk.Stack {
         version: rds.AuroraPostgresEngineVersion.VER_15_3,
       }),
       credentials: rds.Credentials.fromGeneratedSecret('qusai'), // auto-generate the password
-      readers: [rds.ClusterInstance.serverlessV2('Reader1')],
+      readers: [rds.ClusterInstance.serverlessV2('Reader1', { scaleWithWriter: true })],
       writer: rds.ClusterInstance.provisioned('Writer'),
       // removalPolicy: cdk.RemovalPolicy.RETAIN,
       // deletionProtection: true,

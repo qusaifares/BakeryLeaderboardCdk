@@ -6,6 +6,7 @@ import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import path from 'path';
 import { Stage } from '../../types/Stage';
+import { capitalized } from '../../util/augmentation/string-augmentation';
 
 interface PipelineSecret {
   githubToken: string;
@@ -93,7 +94,7 @@ export class PipelineStack extends cdk.Stack {
 }
 
 const deployToStage = (stageName: Stage, inputArtifact: codepipeline.Artifact) => {
-  const capitalizedStageName = stageName.capitalized();
+  const capitalizedStageName = capitalized(stageName);
   const cloudFormationAction = new codepipeline_actions.CloudFormationCreateUpdateStackAction({
     actionName: `CFN_Deploy_${capitalizedStageName}`,
     stackName: `LambdaStack-${capitalizedStageName}`,

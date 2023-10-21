@@ -14,7 +14,7 @@ phases:
       - echo Building...
       - npm run build
       - echo Synthesizing the CDK app...
-      - npx cdk synth
+      - npm run synth
 artifacts:
   files:
     - build/**/*

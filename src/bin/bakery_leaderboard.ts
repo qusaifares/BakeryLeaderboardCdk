@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /* eslint-disable no-new */
-import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import '../util/augmentation/string-augmentation';
+import 'source-map-support/register';
 import { BakeryLeaderboardStack } from '../lib/bakery_leaderboard-stack';
 
 const app = new cdk.App();
