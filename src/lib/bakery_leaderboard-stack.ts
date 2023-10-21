@@ -21,7 +21,7 @@ import { SourceMatchesEvent, SourceMatchesEventType } from '../SyncService/share
 import '../util/augmentation/string-augmentation';
 import { createPipeline } from './resources/pipeline';
 
-const LAMBDA_HANDLERS_PATH = path.join(__dirname, '../SyncService/handler');
+const LAMBDA_HANDLERS_PATH = 'src/SyncService/handler';
 
 export class BakeryLeaderboardStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -188,6 +188,7 @@ export class BakeryLeaderboardStack extends cdk.Stack {
         STATE_MACHINE_ARN: matchSourceStateMachine.stateMachineArn,
       },
       vpc,
+      reservedConcurrentExecutions: 200,
     });
 
     const syncSummonerStatsLambda = new lambdanodejs.NodejsFunction(this, 'SyncSummonerStatsLambda', {

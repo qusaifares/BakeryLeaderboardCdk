@@ -3,7 +3,6 @@ import * as codepipeline_actions from 'aws-cdk-lib/aws-codepipeline-actions';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
-import path from 'path';
 import { Stage } from '../../types/Stage';
 import { capitalized } from '../../util/augmentation/string-augmentation';
 
@@ -21,12 +20,12 @@ export function createPipeline(scope: Construct) {
 
   const buildSpec = codebuild
     .BuildSpec
-    .fromSourceFilename(path.join(__dirname, '../../../buildspec.yaml'));
+    .fromSourceFilename('buildspec.yaml');
 
-  const project = new codebuild.PipelineProject(scope, 'MyProject', {
+  const project = new codebuild.PipelineProject(scope, 'PipelineProject', {
     buildSpec,
     environment: {
-      buildImage: codebuild.LinuxBuildImage.STANDARD_5_0,
+      buildImage: codebuild.LinuxBuildImage.STANDARD_7_0,
     },
   });
 
@@ -44,18 +43,14 @@ export function createPipeline(scope: Construct) {
     output: sourceOutput,
   });
 
+  const buildOutput = new codepipeline.Artifact();
+
   const buildAction = new codepipeline_actions.CodeBuildAction({
     actionName: 'Build',
     project,
     input: sourceOutput,
-    outputs: [new codepipeline.Artifact()],
+    outputs: [buildOutput],
   });
-
-  const buildOutput = (buildAction.actionProperties.outputs || [])[0];
-
-  if (!buildOutput) {
-    throw new Error('No build output exists.');
-  }
 
   pipeline.addStage({
     stageName: 'Source',
@@ -94,7 +89,7 @@ const deployToStage = (stageName: Stage, inputArtifact: codepipeline.Artifact) =
   const cloudFormationAction = new codepipeline_actions.CloudFormationCreateUpdateStackAction({
     actionName: `CFN_Deploy_${capitalizedStageName}`,
     stackName: `LambdaStack-${capitalizedStageName}`,
-    templatePath: inputArtifact.atPath(path.join(__dirname, '../../template.yaml')), // path to CloudFormation template in the build artifact
+    templatePath: inputArtifact.atPath('template.yaml'), // path to CloudFormation template in the build artifact
     adminPermissions: true, // grants the action the permissions needed to create or update a stack
     runOrder: 1,
   });
