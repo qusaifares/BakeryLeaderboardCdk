@@ -44,6 +44,7 @@ export class DatabaseManager {
 
         if (this.dataSource.isInitialized) return this.dataSource;
 
+        console.log('Initializing DB connection');
         const source = await this.dataSource.initialize();
 
         return source;
@@ -51,7 +52,11 @@ export class DatabaseManager {
       CONNECTION_TIMEOUT,
       {
         taskName: 'Database connection',
-        onError: () => this.dataSource?.destroy(),
+        onError: () => {
+          console.log('Failed to get DB connection');
+          if (!this.dataSource) return;
+          this.dataSource.destroy();
+        },
       },
     );
   }

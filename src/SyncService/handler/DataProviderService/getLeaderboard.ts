@@ -11,11 +11,14 @@ export interface GetLeaderboardResponse {
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   console.log('Received event:', event);
+
+  const response = await getLeaderboardResponse();
+
   return {
     statusCode: 200,
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(await getLeaderboardResponse()),
+    body: JSON.stringify(response),
   };
 };
