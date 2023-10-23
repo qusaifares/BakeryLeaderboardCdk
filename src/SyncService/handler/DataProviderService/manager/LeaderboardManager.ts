@@ -7,6 +7,8 @@ export const getLeaderboardResponse = async (): Promise<LeaderboardResponse> => 
 
   const transformedSummoners = transformPlayersToSummonerApiModels(players);
 
+  console.log('Transformed summoners:', transformedSummoners);
+
   return {
     players: transformedSummoners,
   };
