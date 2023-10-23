@@ -8,6 +8,7 @@ import * as rds from 'aws-cdk-lib/aws-rds';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as lambdanodejs from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
@@ -225,6 +226,30 @@ export class BakeryLeaderboardStack extends cdk.Stack {
       schedule: events.Schedule.rate(cdk.Duration.minutes(30)),
     });
 
+    // Data provider lambdas
+    const leaderboardDataProviderLambda = new lambdanodejs.NodejsFunction(this, 'LeaderboardDataProviderLambda', {
+      entry: path.join(LAMBDA_HANDLERS_PATH, 'DataProviderService/getLeaderboard.ts'),
+      handler: 'handler',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      vpc,
+      timeout: cdk.Duration.seconds(10),
+    });
+
+    const getLeaderboardApi = new apigateway.LambdaRestApi(this, 'GetLeaderboardEndpoint', {
+      handler: leaderboardDataProviderLambda,
+      proxy: false,
+      endpointTypes: [apigateway.EndpointType.REGIONAL],
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: ['GET'],
+        allowHeaders: ['Authorization', 'Content-Type'],
+        maxAge: cdk.Duration.days(10),
+      },
+    });
+
+    const getLeaderboardResource = getLeaderboardApi.root.addResource('leaderboard');
+    getLeaderboardResource.addMethod('GET');
+
     // Queue message send permissions
     matchIdProcessingQueue.grantSendMessages(getMatchIdsForSummonerLambda);
     getMatchIdsForSummonerLambda.addEnvironment('FETCH_MATCH_QUEUE_URL', matchIdProcessingQueue.queueUrl);
@@ -266,6 +291,8 @@ export class BakeryLeaderboardStack extends cdk.Stack {
     auroraCluster.connections.allowDefaultPortFrom(syncSummonerStatsLambda);
     grantSecret(auroraClusterSecret, syncSummonerStatsFromScratchLambda, DB_SECRET_ENV_KEY);
     auroraCluster.connections.allowDefaultPortFrom(syncSummonerStatsFromScratchLambda);
+    grantSecret(auroraClusterSecret, leaderboardDataProviderLambda, DB_SECRET_ENV_KEY);
+    auroraCluster.connections.allowDefaultPortFrom(leaderboardDataProviderLambda);
 
     setLambdaNodeEnv(
       summonerSourceLambda,
@@ -276,6 +303,7 @@ export class BakeryLeaderboardStack extends cdk.Stack {
       fetchAndInsertMatchDataLambda,
       syncSummonerStatsLambda,
       syncSummonerStatsFromScratchLambda,
+      leaderboardDataProviderLambda,
     );
   }
 }

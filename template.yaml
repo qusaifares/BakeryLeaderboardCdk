@@ -113,7 +113,7 @@ Resources:
           - PipelineProjectRoleA63EF27D
           - Arn
       Source:
-        BuildSpec: ../../../buildspec.yaml
+        BuildSpec: buildspec.yaml
         Type: CODEPIPELINE
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/PipelineProject/Resource
@@ -245,16 +245,10 @@ Resources:
             Effect: Allow
             Resource:
               - Fn::GetAtt:
-                  - BakeryLeaderboardPipelineApprovalManualApprovalCodePipelineActionRole99CF799E
-                  - Arn
-              - Fn::GetAtt:
                   - BakeryLeaderboardPipelineBuildCodePipelineActionRoleAA7C2E3A
                   - Arn
               - Fn::GetAtt:
-                  - BakeryLeaderboardPipelineDeployToProdCFNDeployProdCodePipelineActionRole43DE974E
-                  - Arn
-              - Fn::GetAtt:
-                  - BakeryLeaderboardPipelineDeployToTestCFNDeployTestCodePipelineActionRoleCBD76EFF
+                  - BakeryLeaderboardPipelineProdCFNDeployProdCodePipelineActionRoleFDB8B666
                   - Arn
         Version: "2012-10-17"
       PolicyName: BakeryLeaderboardPipelineRoleDefaultPolicyB015AEF6
@@ -331,62 +325,23 @@ Resources:
                 Provider: CloudFormation
                 Version: "1"
               Configuration:
-                StackName: LambdaStack-Test
+                StackName: BakeryLeaderboardStack
                 Capabilities: CAPABILITY_NAMED_IAM
                 RoleArn:
                   Fn::GetAtt:
-                    - BakeryLeaderboardPipelineDeployToTestCFNDeployTestRole72AEBF97
+                    - BakeryLeaderboardPipelineProdCFNDeployProdRoleE22836FB
                     - Arn
                 ActionMode: CREATE_UPDATE
-                TemplatePath: Artifact_Build_Build::../../template.yaml
-              InputArtifacts:
-                - Name: Artifact_Build_Build
-              Name: CFN_Deploy_Test
-              RoleArn:
-                Fn::GetAtt:
-                  - BakeryLeaderboardPipelineDeployToTestCFNDeployTestCodePipelineActionRoleCBD76EFF
-                  - Arn
-              RunOrder: 1
-          Name: DeployToTest
-        - Actions:
-            - ActionTypeId:
-                Category: Approval
-                Owner: AWS
-                Provider: Manual
-                Version: "1"
-              Configuration:
-                CustomData: Approve or Reject this change to deploy to Production
-              Name: ManualApproval
-              RoleArn:
-                Fn::GetAtt:
-                  - BakeryLeaderboardPipelineApprovalManualApprovalCodePipelineActionRole99CF799E
-                  - Arn
-              RunOrder: 1
-          Name: Approval
-        - Actions:
-            - ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CloudFormation
-                Version: "1"
-              Configuration:
-                StackName: LambdaStack-Prod
-                Capabilities: CAPABILITY_NAMED_IAM
-                RoleArn:
-                  Fn::GetAtt:
-                    - BakeryLeaderboardPipelineDeployToProdCFNDeployProdRole426249D2
-                    - Arn
-                ActionMode: CREATE_UPDATE
-                TemplatePath: Artifact_Build_Build::../../template.yaml
+                TemplatePath: Artifact_Build_Build::cdk.out/template.yaml
               InputArtifacts:
                 - Name: Artifact_Build_Build
               Name: CFN_Deploy_Prod
               RoleArn:
                 Fn::GetAtt:
-                  - BakeryLeaderboardPipelineDeployToProdCFNDeployProdCodePipelineActionRole43DE974E
+                  - BakeryLeaderboardPipelineProdCFNDeployProdCodePipelineActionRoleFDB8B666
                   - Arn
               RunOrder: 1
-          Name: DeployToProd
+          Name: Prod
     DependsOn:
       - BakeryLeaderboardPipelineRoleDefaultPolicyB015AEF6
       - BakeryLeaderboardPipelineRole6967F23C
@@ -445,7 +400,7 @@ Resources:
         - Ref: BakeryLeaderboardPipelineBuildCodePipelineActionRoleAA7C2E3A
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardPipeline/Build/Build/CodePipelineActionRole/DefaultPolicy/Resource
-  BakeryLeaderboardPipelineDeployToTestCFNDeployTestCodePipelineActionRoleCBD76EFF:
+  BakeryLeaderboardPipelineProdCFNDeployProdCodePipelineActionRoleFDB8B666:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -456,8 +411,8 @@ Resources:
               AWS: arn:aws:iam::789658303834:root
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardPipeline/DeployToTest/CFN_Deploy_Test/CodePipelineActionRole/Resource
-  BakeryLeaderboardPipelineDeployToTestCFNDeployTestCodePipelineActionRoleDefaultPolicy97C921CF:
+      aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardPipeline/Prod/CFN_Deploy_Prod/CodePipelineActionRole/Resource
+  BakeryLeaderboardPipelineProdCFNDeployProdCodePipelineActionRoleDefaultPolicy9734F0EF:
     Type: AWS::IAM::Policy
     Properties:
       PolicyDocument:
@@ -466,7 +421,7 @@ Resources:
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - BakeryLeaderboardPipelineDeployToTestCFNDeployTestRole72AEBF97
+                - BakeryLeaderboardPipelineProdCFNDeployProdRoleE22836FB
                 - Arn
           - Action:
               - s3:GetBucket*
@@ -500,14 +455,14 @@ Resources:
               - cloudformation:UpdateStack
               - cloudformation:ValidateTemplate
             Effect: Allow
-            Resource: arn:aws:cloudformation:us-east-2:789658303834:stack/LambdaStack-Test/*
+            Resource: arn:aws:cloudformation:us-east-2:789658303834:stack/BakeryLeaderboardStack/*
         Version: "2012-10-17"
-      PolicyName: BakeryLeaderboardPipelineDeployToTestCFNDeployTestCodePipelineActionRoleDefaultPolicy97C921CF
+      PolicyName: BakeryLeaderboardPipelineProdCFNDeployProdCodePipelineActionRoleDefaultPolicy9734F0EF
       Roles:
-        - Ref: BakeryLeaderboardPipelineDeployToTestCFNDeployTestCodePipelineActionRoleCBD76EFF
+        - Ref: BakeryLeaderboardPipelineProdCFNDeployProdCodePipelineActionRoleFDB8B666
     Metadata:
-      aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardPipeline/DeployToTest/CFN_Deploy_Test/CodePipelineActionRole/DefaultPolicy/Resource
-  BakeryLeaderboardPipelineDeployToTestCFNDeployTestRole72AEBF97:
+      aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardPipeline/Prod/CFN_Deploy_Prod/CodePipelineActionRole/DefaultPolicy/Resource
+  BakeryLeaderboardPipelineProdCFNDeployProdRoleE22836FB:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -518,8 +473,8 @@ Resources:
               Service: cloudformation.amazonaws.com
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardPipeline/DeployToTest/CFN_Deploy_Test/Role/Resource
-  BakeryLeaderboardPipelineDeployToTestCFNDeployTestRoleDefaultPolicy0186F5E4:
+      aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardPipeline/Prod/CFN_Deploy_Prod/Role/Resource
+  BakeryLeaderboardPipelineProdCFNDeployProdRoleDefaultPolicyAE64D137:
     Type: AWS::IAM::Policy
     Properties:
       PolicyDocument:
@@ -551,134 +506,11 @@ Resources:
             Effect: Allow
             Resource: "*"
         Version: "2012-10-17"
-      PolicyName: BakeryLeaderboardPipelineDeployToTestCFNDeployTestRoleDefaultPolicy0186F5E4
+      PolicyName: BakeryLeaderboardPipelineProdCFNDeployProdRoleDefaultPolicyAE64D137
       Roles:
-        - Ref: BakeryLeaderboardPipelineDeployToTestCFNDeployTestRole72AEBF97
+        - Ref: BakeryLeaderboardPipelineProdCFNDeployProdRoleE22836FB
     Metadata:
-      aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardPipeline/DeployToTest/CFN_Deploy_Test/Role/DefaultPolicy/Resource
-  BakeryLeaderboardPipelineApprovalManualApprovalCodePipelineActionRole99CF799E:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action: sts:AssumeRole
-            Effect: Allow
-            Principal:
-              AWS: arn:aws:iam::789658303834:root
-        Version: "2012-10-17"
-    Metadata:
-      aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardPipeline/Approval/ManualApproval/CodePipelineActionRole/Resource
-  BakeryLeaderboardPipelineDeployToProdCFNDeployProdCodePipelineActionRole43DE974E:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action: sts:AssumeRole
-            Effect: Allow
-            Principal:
-              AWS: arn:aws:iam::789658303834:root
-        Version: "2012-10-17"
-    Metadata:
-      aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardPipeline/DeployToProd/CFN_Deploy_Prod/CodePipelineActionRole/Resource
-  BakeryLeaderboardPipelineDeployToProdCFNDeployProdCodePipelineActionRoleDefaultPolicyC58FF0E2:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyDocument:
-        Statement:
-          - Action: iam:PassRole
-            Effect: Allow
-            Resource:
-              Fn::GetAtt:
-                - BakeryLeaderboardPipelineDeployToProdCFNDeployProdRole426249D2
-                - Arn
-          - Action:
-              - s3:GetBucket*
-              - s3:GetObject*
-              - s3:List*
-            Effect: Allow
-            Resource:
-              - Fn::GetAtt:
-                  - BakeryLeaderboardPipelineArtifactsBucketB77880EE
-                  - Arn
-              - Fn::Join:
-                  - ""
-                  - - Fn::GetAtt:
-                        - BakeryLeaderboardPipelineArtifactsBucketB77880EE
-                        - Arn
-                    - /*
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-            Effect: Allow
-            Resource:
-              Fn::GetAtt:
-                - BakeryLeaderboardPipelineArtifactsBucketEncryptionKeyF88ED53E
-                - Arn
-          - Action:
-              - cloudformation:CreateStack
-              - cloudformation:DescribeStack*
-              - cloudformation:GetStackPolicy
-              - cloudformation:GetTemplate*
-              - cloudformation:SetStackPolicy
-              - cloudformation:UpdateStack
-              - cloudformation:ValidateTemplate
-            Effect: Allow
-            Resource: arn:aws:cloudformation:us-east-2:789658303834:stack/LambdaStack-Prod/*
-        Version: "2012-10-17"
-      PolicyName: BakeryLeaderboardPipelineDeployToProdCFNDeployProdCodePipelineActionRoleDefaultPolicyC58FF0E2
-      Roles:
-        - Ref: BakeryLeaderboardPipelineDeployToProdCFNDeployProdCodePipelineActionRole43DE974E
-    Metadata:
-      aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardPipeline/DeployToProd/CFN_Deploy_Prod/CodePipelineActionRole/DefaultPolicy/Resource
-  BakeryLeaderboardPipelineDeployToProdCFNDeployProdRole426249D2:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action: sts:AssumeRole
-            Effect: Allow
-            Principal:
-              Service: cloudformation.amazonaws.com
-        Version: "2012-10-17"
-    Metadata:
-      aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardPipeline/DeployToProd/CFN_Deploy_Prod/Role/Resource
-  BakeryLeaderboardPipelineDeployToProdCFNDeployProdRoleDefaultPolicyBB2615DE:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyDocument:
-        Statement:
-          - Action:
-              - s3:GetBucket*
-              - s3:GetObject*
-              - s3:List*
-            Effect: Allow
-            Resource:
-              - Fn::GetAtt:
-                  - BakeryLeaderboardPipelineArtifactsBucketB77880EE
-                  - Arn
-              - Fn::Join:
-                  - ""
-                  - - Fn::GetAtt:
-                        - BakeryLeaderboardPipelineArtifactsBucketB77880EE
-                        - Arn
-                    - /*
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-            Effect: Allow
-            Resource:
-              Fn::GetAtt:
-                - BakeryLeaderboardPipelineArtifactsBucketEncryptionKeyF88ED53E
-                - Arn
-          - Action: "*"
-            Effect: Allow
-            Resource: "*"
-        Version: "2012-10-17"
-      PolicyName: BakeryLeaderboardPipelineDeployToProdCFNDeployProdRoleDefaultPolicyBB2615DE
-      Roles:
-        - Ref: BakeryLeaderboardPipelineDeployToProdCFNDeployProdRole426249D2
-    Metadata:
-      aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardPipeline/DeployToProd/CFN_Deploy_Prod/Role/DefaultPolicy/Resource
+      aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardPipeline/Prod/CFN_Deploy_Prod/Role/DefaultPolicy/Resource
   MyVpcF9F0CA6F:
     Type: AWS::EC2::VPC
     Properties:
@@ -1331,6 +1163,29 @@ Resources:
           - Endpoint.Port
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/RdsSecurityGroup/from BakeryLeaderboardStackSyncSummonerStatsFromScratchLambdaSecurityGroup7B0EF880:{IndirectPort}
+  RdsSecurityGroupfromBakeryLeaderboardStackLeaderboardDataProviderLambdaSecurityGroup0F2DA5BFIndirectPort645BCB3D:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: from BakeryLeaderboardStackLeaderboardDataProviderLambdaSecurityGroup0F2DA5BF:{IndirectPort}
+      FromPort:
+        Fn::GetAtt:
+          - BakeryLeaderboardDatabase5E4ABA2D
+          - Endpoint.Port
+      GroupId:
+        Fn::GetAtt:
+          - RdsSecurityGroup632A77E4
+          - GroupId
+      IpProtocol: tcp
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - LeaderboardDataProviderLambdaSecurityGroup77970D10
+          - GroupId
+      ToPort:
+        Fn::GetAtt:
+          - BakeryLeaderboardDatabase5E4ABA2D
+          - Endpoint.Port
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/RdsSecurityGroup/from BakeryLeaderboardStackLeaderboardDataProviderLambdaSecurityGroup0F2DA5BF:{IndirectPort}
   DatabaseProxyInstanceInstanceRole7AC61EFB:
     Type: AWS::IAM::Role
     Properties:
@@ -1570,7 +1425,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: 0bffb68644fe0f1a55ff141c843589482a89a60180e9632d0ffd5dd0b2d35127.zip
+        S3Key: 132a7aef44ffd3f8aefcaaeb290733c20ffe385c33909c4523005399fab25fa2.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -1606,7 +1461,7 @@ Resources:
       - SummonerSourceLambdaServiceRole063D76E3
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/SummonerSourceLambda/Resource
-      aws:asset:path: asset.0bffb68644fe0f1a55ff141c843589482a89a60180e9632d0ffd5dd0b2d35127
+      aws:asset:path: asset.132a7aef44ffd3f8aefcaaeb290733c20ffe385c33909c4523005399fab25fa2
       aws:asset:is-bundled: true
       aws:asset:property: Code
   SourceMatchesLambdaServiceRoleEF9474EC:
@@ -1696,7 +1551,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: ec726e7e547e3b509a84cd18b5df50a626397497bd4cf47e682e2530ab6b7a4f.zip
+        S3Key: b9245ddc3ea42477c09c9df502550a04fb0c51f6052bd646f12bbfa91da301f6.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -1732,7 +1587,7 @@ Resources:
       - SourceMatchesLambdaServiceRoleEF9474EC
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/SourceMatchesLambda/Resource
-      aws:asset:path: asset.ec726e7e547e3b509a84cd18b5df50a626397497bd4cf47e682e2530ab6b7a4f
+      aws:asset:path: asset.b9245ddc3ea42477c09c9df502550a04fb0c51f6052bd646f12bbfa91da301f6
       aws:asset:is-bundled: true
       aws:asset:property: Code
   GetMatchIdsForSummonerLambdaServiceRoleF7735954:
@@ -1833,7 +1688,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: 1ef7be0409fa576b4c392a3faf7a6962f0d3f7394b3c372e71b08ed1d3399741.zip
+        S3Key: 93835236e8bae6f19843f869e73894dfda0af8f7fc2f3ab4b8df6570d7582cc0.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -1869,7 +1724,7 @@ Resources:
       - MyVpcPrivateSubnet3RouteTableAssociationD951741C
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/GetMatchIdsForSummonerLambda/Resource
-      aws:asset:path: asset.1ef7be0409fa576b4c392a3faf7a6962f0d3f7394b3c372e71b08ed1d3399741
+      aws:asset:path: asset.93835236e8bae6f19843f869e73894dfda0af8f7fc2f3ab4b8df6570d7582cc0
       aws:asset:is-bundled: true
       aws:asset:property: Code
   GetMatchIdsForSummonerLambdaSqsEventSourceBakeryLeaderboardStackSummonerMatchFetchRequestQueue70C935A4E1C702A4:
@@ -2010,7 +1865,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: 9fcce78cd7e9641369a8837a58ff7bf231e28b2543b9e1dadb0daf57385a2ff3.zip
+        S3Key: 12018fc8fd8987ffaabb9bb20cabd694c61d2c6af6a8b78e9409d15635380f52.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -2044,7 +1899,7 @@ Resources:
       - MyVpcPrivateSubnet3RouteTableAssociationD951741C
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/CheckMatchExistenceLambda/Resource
-      aws:asset:path: asset.9fcce78cd7e9641369a8837a58ff7bf231e28b2543b9e1dadb0daf57385a2ff3
+      aws:asset:path: asset.12018fc8fd8987ffaabb9bb20cabd694c61d2c6af6a8b78e9409d15635380f52
       aws:asset:is-bundled: true
       aws:asset:property: Code
   FetchAndInsertMatchDataLambdaServiceRoleF9BB2111:
@@ -2138,7 +1993,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: a29b9b27aa0bdc2b70c0f248af6fe18aadeb662f2825ccf2b2877982fcdc1bb6.zip
+        S3Key: fe79a7b422764d350bfa23b0475ae2b5ec0ce947ba6b2d27de8a1807a46f1ef3.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -2178,7 +2033,7 @@ Resources:
       - MyVpcPrivateSubnet3RouteTableAssociationD951741C
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/FetchAndInsertMatchDataLambda/Resource
-      aws:asset:path: asset.a29b9b27aa0bdc2b70c0f248af6fe18aadeb662f2825ccf2b2877982fcdc1bb6
+      aws:asset:path: asset.fe79a7b422764d350bfa23b0475ae2b5ec0ce947ba6b2d27de8a1807a46f1ef3
       aws:asset:is-bundled: true
       aws:asset:property: Code
   MatchSourceStateMachineRoleD09F75E7:
@@ -2342,7 +2197,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: dbf73cba479d9d7fb010f1e515d444e3557647b86ed65d46b3d1cb0a290fa92b.zip
+        S3Key: f10a83257609a5f58a310365e7ad7429464c3ceefeba666b9c4bc3250a9e0b5e.zip
       Environment:
         Variables:
           STATE_MACHINE_ARN:
@@ -2376,7 +2231,7 @@ Resources:
       - MyVpcPrivateSubnet3RouteTableAssociationD951741C
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/MatchSourceStateMachineTriggerLambda/Resource
-      aws:asset:path: asset.dbf73cba479d9d7fb010f1e515d444e3557647b86ed65d46b3d1cb0a290fa92b
+      aws:asset:path: asset.f10a83257609a5f58a310365e7ad7429464c3ceefeba666b9c4bc3250a9e0b5e
       aws:asset:is-bundled: true
       aws:asset:property: Code
   MatchSourceStateMachineTriggerLambdaSqsEventSourceBakeryLeaderboardStackMatchIdProcessingQueueCF2189E8E066490E:
@@ -2476,7 +2331,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: 0c285405c6b57f99366eaa3e336210bc3e19f57aebc5bb2957fcc89028207696.zip
+        S3Key: 9707db3cf1159398321a0e69a536d067b706af80359cec036b475927007b1cdb.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -2512,7 +2367,7 @@ Resources:
       - SyncSummonerStatsLambdaServiceRoleFCBA71AA
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/SyncSummonerStatsLambda/Resource
-      aws:asset:path: asset.0c285405c6b57f99366eaa3e336210bc3e19f57aebc5bb2957fcc89028207696
+      aws:asset:path: asset.9707db3cf1159398321a0e69a536d067b706af80359cec036b475927007b1cdb
       aws:asset:is-bundled: true
       aws:asset:property: Code
   SyncSummonerStatsFromScratchLambdaServiceRole0CA6C4FE:
@@ -2594,7 +2449,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: 666ed3c066110652898fe17fcef19f2e69a02ed98203dba7fe667f6aef16da18.zip
+        S3Key: 568f2ce4aaf2e3661baf3d39635bea492541e15a8d8ae108d6fcdcba04c2566d.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -2630,7 +2485,7 @@ Resources:
       - SyncSummonerStatsFromScratchLambdaServiceRole0CA6C4FE
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/SyncSummonerStatsFromScratchLambda/Resource
-      aws:asset:path: asset.666ed3c066110652898fe17fcef19f2e69a02ed98203dba7fe667f6aef16da18
+      aws:asset:path: asset.568f2ce4aaf2e3661baf3d39635bea492541e15a8d8ae108d6fcdcba04c2566d
       aws:asset:is-bundled: true
       aws:asset:property: Code
   SourceMatchesEventBD103A76:
@@ -2662,10 +2517,289 @@ Resources:
           - Arn
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/SourceMatchesEvent/AllowEventRuleBakeryLeaderboardStackSourceMatchesLambda12AA7648
+  LeaderboardDataProviderLambdaServiceRole24E8CC90:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+    DependsOn:
+      - MyVpcPrivateSubnet1DefaultRouteA8CDE2FA
+      - MyVpcPrivateSubnet1RouteTableAssociation56D38C7E
+      - MyVpcPrivateSubnet2DefaultRoute9CE96294
+      - MyVpcPrivateSubnet2RouteTableAssociation86A610DA
+      - MyVpcPrivateSubnet3DefaultRouteEC11C0C5
+      - MyVpcPrivateSubnet3RouteTableAssociationD951741C
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/LeaderboardDataProviderLambda/ServiceRole/Resource
+  LeaderboardDataProviderLambdaServiceRoleDefaultPolicyE1D71757:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - secretsmanager:DescribeSecret
+              - secretsmanager:GetSecretValue
+            Effect: Allow
+            Resource:
+              Ref: BakeryLeaderboardDatabaseSecretAttachment2E68FFA9
+        Version: "2012-10-17"
+      PolicyName: LeaderboardDataProviderLambdaServiceRoleDefaultPolicyE1D71757
+      Roles:
+        - Ref: LeaderboardDataProviderLambdaServiceRole24E8CC90
+    DependsOn:
+      - MyVpcPrivateSubnet1DefaultRouteA8CDE2FA
+      - MyVpcPrivateSubnet1RouteTableAssociation56D38C7E
+      - MyVpcPrivateSubnet2DefaultRoute9CE96294
+      - MyVpcPrivateSubnet2RouteTableAssociation86A610DA
+      - MyVpcPrivateSubnet3DefaultRouteEC11C0C5
+      - MyVpcPrivateSubnet3RouteTableAssociationD951741C
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/LeaderboardDataProviderLambda/ServiceRole/DefaultPolicy/Resource
+  LeaderboardDataProviderLambdaSecurityGroup77970D10:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Automatic security group for Lambda Function BakeryLeaderboardStackLeaderboardDataProviderLambda74C0F54C
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      VpcId:
+        Ref: MyVpcF9F0CA6F
+    DependsOn:
+      - MyVpcPrivateSubnet1DefaultRouteA8CDE2FA
+      - MyVpcPrivateSubnet1RouteTableAssociation56D38C7E
+      - MyVpcPrivateSubnet2DefaultRoute9CE96294
+      - MyVpcPrivateSubnet2RouteTableAssociation86A610DA
+      - MyVpcPrivateSubnet3DefaultRouteEC11C0C5
+      - MyVpcPrivateSubnet3RouteTableAssociationD951741C
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/LeaderboardDataProviderLambda/SecurityGroup/Resource
+  LeaderboardDataProviderLambda6266F9FC:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
+        S3Key: ff70fffc39c8ca313f6486dd7e1383bb26116283d68434c003e8dd14b9a5e7d9.zip
+      Environment:
+        Variables:
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          DB_SECRET:
+            Ref: BakeryLeaderboardDatabaseSecretAttachment2E68FFA9
+          NODE_ENV: development
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - LeaderboardDataProviderLambdaServiceRole24E8CC90
+          - Arn
+      Runtime: nodejs18.x
+      Timeout: 10
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::GetAtt:
+              - LeaderboardDataProviderLambdaSecurityGroup77970D10
+              - GroupId
+        SubnetIds:
+          - Ref: MyVpcPrivateSubnet1Subnet5057CF7E
+          - Ref: MyVpcPrivateSubnet2Subnet0040C983
+          - Ref: MyVpcPrivateSubnet3Subnet772D6AD7
+    DependsOn:
+      - LeaderboardDataProviderLambdaServiceRoleDefaultPolicyE1D71757
+      - LeaderboardDataProviderLambdaServiceRole24E8CC90
+      - MyVpcPrivateSubnet1DefaultRouteA8CDE2FA
+      - MyVpcPrivateSubnet1RouteTableAssociation56D38C7E
+      - MyVpcPrivateSubnet2DefaultRoute9CE96294
+      - MyVpcPrivateSubnet2RouteTableAssociation86A610DA
+      - MyVpcPrivateSubnet3DefaultRouteEC11C0C5
+      - MyVpcPrivateSubnet3RouteTableAssociationD951741C
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/LeaderboardDataProviderLambda/Resource
+      aws:asset:path: asset.ff70fffc39c8ca313f6486dd7e1383bb26116283d68434c003e8dd14b9a5e7d9
+      aws:asset:is-bundled: true
+      aws:asset:property: Code
+  GetLeaderboardEndpoint67C51734:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      Name: GetLeaderboardEndpoint
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/GetLeaderboardEndpoint/Resource
+  GetLeaderboardEndpointDeploymentF14B33FF873911939d963123862f1a41f56be385:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      Description: Automatically created by the RestApi construct
+      RestApiId:
+        Ref: GetLeaderboardEndpoint67C51734
+    DependsOn:
+      - GetLeaderboardEndpointleaderboardGET9BE2514F
+      - GetLeaderboardEndpointleaderboardOPTIONSDDFCA2AD
+      - GetLeaderboardEndpointleaderboardA21DCD8F
+      - GetLeaderboardEndpointOPTIONS2B86B8A7
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/GetLeaderboardEndpoint/Deployment/Resource
+  GetLeaderboardEndpointDeploymentStageprod46EBBC97:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId:
+        Ref: GetLeaderboardEndpointDeploymentF14B33FF873911939d963123862f1a41f56be385
+      RestApiId:
+        Ref: GetLeaderboardEndpoint67C51734
+      StageName: prod
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/GetLeaderboardEndpoint/DeploymentStage.prod/Resource
+  GetLeaderboardEndpointOPTIONS2B86B8A7:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Authorization,Content-Type'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'GET'"
+              method.response.header.Access-Control-Max-Age: "'864000'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Max-Age: true
+          StatusCode: "204"
+      ResourceId:
+        Fn::GetAtt:
+          - GetLeaderboardEndpoint67C51734
+          - RootResourceId
+      RestApiId:
+        Ref: GetLeaderboardEndpoint67C51734
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/GetLeaderboardEndpoint/Default/OPTIONS/Resource
+  GetLeaderboardEndpointleaderboardA21DCD8F:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - GetLeaderboardEndpoint67C51734
+          - RootResourceId
+      PathPart: leaderboard
+      RestApiId:
+        Ref: GetLeaderboardEndpoint67C51734
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/GetLeaderboardEndpoint/Default/leaderboard/Resource
+  GetLeaderboardEndpointleaderboardOPTIONSDDFCA2AD:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Authorization,Content-Type'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'GET'"
+              method.response.header.Access-Control-Max-Age: "'864000'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Max-Age: true
+          StatusCode: "204"
+      ResourceId:
+        Ref: GetLeaderboardEndpointleaderboardA21DCD8F
+      RestApiId:
+        Ref: GetLeaderboardEndpoint67C51734
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/GetLeaderboardEndpoint/Default/leaderboard/OPTIONS/Resource
+  GetLeaderboardEndpointleaderboardGETApiPermissionBakeryLeaderboardStackGetLeaderboardEndpoint1DD32271GETleaderboard5C9C0752:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - LeaderboardDataProviderLambda6266F9FC
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:execute-api:us-east-2:789658303834:"
+            - Ref: GetLeaderboardEndpoint67C51734
+            - /
+            - Ref: GetLeaderboardEndpointDeploymentStageprod46EBBC97
+            - /GET/leaderboard
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/GetLeaderboardEndpoint/Default/leaderboard/GET/ApiPermission.BakeryLeaderboardStackGetLeaderboardEndpoint1DD32271.GET..leaderboard
+  GetLeaderboardEndpointleaderboardGETApiPermissionTestBakeryLeaderboardStackGetLeaderboardEndpoint1DD32271GETleaderboardCC8A887F:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - LeaderboardDataProviderLambda6266F9FC
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:execute-api:us-east-2:789658303834:"
+            - Ref: GetLeaderboardEndpoint67C51734
+            - /test-invoke-stage/GET/leaderboard
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/GetLeaderboardEndpoint/Default/leaderboard/GET/ApiPermission.Test.BakeryLeaderboardStackGetLeaderboardEndpoint1DD32271.GET..leaderboard
+  GetLeaderboardEndpointleaderboardGET9BE2514F:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - arn:aws:apigateway:us-east-2:lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - LeaderboardDataProviderLambda6266F9FC
+                  - Arn
+              - /invocations
+      ResourceId:
+        Ref: GetLeaderboardEndpointleaderboardA21DCD8F
+      RestApiId:
+        Ref: GetLeaderboardEndpoint67C51734
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/GetLeaderboardEndpoint/Default/leaderboard/GET/Resource
   CDKMetadata:
     Type: AWS::CDK::Metadata
     Properties:
-      Analytics: v2:deflate64:H4sIAAAAAAAA/31UTW/bMAz9LbsrWtIeums+uiJYV3hJ0R0DWmYSxbbkiVKKwPB/Hy07sTsUO/GReqLIR9p3cjadyukXeKeJyvJJoVNZbz2oXHBoVxMqh55KMHBAx0fRF8u96VFnXsEd0M89XzyWaEaEf08aoWyGadBFJutEV1hog4mzJ1TxVg8boaGU9cYW2EajTWyh1SWSbmhtyINRbYa9LrDLXvVphwfipRH+jenR2rwReUmy/oExV2vmhQZqnQgaQfeyXgSVdz33qDNDER/8zlkAcTGo7mT9VqmW9JYsRRJS5mxDanoNb2hjg8dXSLt2u/gQmxNZpcFra27kFjyuk9a8gH8Cj+9wEYnTZ4ZD4rXx6BhfCV0lvTcaGE8rOO0vT86Gqh/ffwJrc3BIJK76j2fRCJexqivwkLIMyyIQ1yC6mm7pVotx4Eoe9mu1uF6MzpC8gDLNYGd40CeSL9F8D0ZFdeh+B0S8sXLemp4sa85x4zyeueGtDU7hT6gqbQ5Ry0+jCbpSE/E13oU/3NWvgCF2GwEHPVb7PjPtPFBO8jk+ujZnm+NHAhdytJrl4k/M8zvq2C/k2Oe9aWth8ib068+2acQGKdYnliyMLQeXGZ8f8Wdx1hlrGNXgRw7XvsBBiaxuI1oh5Ym+nmff5OyB/wUn0nrigvG6RLnp7F8kMA4wKAQAAA==
+      Analytics: v2:deflate64:H4sIAAAAAAAA/31US2/bMAz+Lbs7WtoetmsebRFs7byk6I6BLDOOYlvyRClFYPi/j5Ll2C2KnfiR+sS3dMtu5nM2/8LfcCbyclbJjLU7y0WZkGnfIggDFmuueAGGjoKerA4qol68cFOAXVi6eKxBTQgfT7pE6BwyJ6uctalsoJIKUqNPIMKtCLtE8pq1W12BtwaZ6kqKSyBd0Uah5Up4DwdZQe+9iW7HAOHSBP+B7Kh12SVljaz9AcGXF4tKcvRKAF2Cd6xdOlH2NUfUizGJd3qvLDlSMiBuWfvaCE96TVdJ6jLi7FymYg+vaKudhRee9eX29tG2QNRCciu1upI9uN+kXjxz+8gtvPFLkhp5Jjg63igLhvBA6DOJ2mRgNC1npL08Gu2aOL7/GDaqMICYDP2fzqJLTE5dXXPLM2rDqnJIOSR9Tld36+XUMJDH/Vovh4tBGZ1XvM5yvlc06BOy5yAenBKhO3i354i0sWzhRSSzlnxcOfdnKninnRHwxJtGqiL08lNrCqaWiHSNduEvVfXbgQvVBkBGC80hesa95Vgi+xmCbtRZl/CeQIkctaR20ROzFEcc40JOddobnwuRty6uv/OrzRtZ9HNjbR9iC2gXjQyUCNfQVPoyvMGJRhGKIRQB4oda/aImT2CPOveHEQ2n0XPAXTcx02R0/RnrwxG9y7PMaYhhHD700FhueA1xvL+cbRy9eT9TdsKv55vv7OYbfUsnlHJmnLKyBrbt5T8KXzLWswQAAA==
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/CDKMetadata/Default
 Parameters:
@@ -2676,6 +2810,18 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /cdk-bootstrap/hnb659fds/version
     Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Outputs:
+  GetLeaderboardEndpoint522CC692:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: GetLeaderboardEndpoint67C51734
+          - .execute-api.us-east-2.
+          - Ref: AWS::URLSuffix
+          - /
+          - Ref: GetLeaderboardEndpointDeploymentStageprod46EBBC97
+          - /
 Rules:
   CheckBootstrapVersion:
     Assertions:

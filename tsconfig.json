@@ -29,10 +29,14 @@
       "./node_modules/@types",
       "./src/@types"
     ],
+    "paths": {
+      "@bakery-leaderboard-ts-sdk": ["./src/SyncService/handler/DataProviderService/api"],
+    }
   },
-  "include": ["src/**/**.ts"],
+  "include": ["src/**/**.ts", "resources"],
   "exclude": [
     "node_modules",
     "cdk.out"
-  ]
+  ],
+
 }

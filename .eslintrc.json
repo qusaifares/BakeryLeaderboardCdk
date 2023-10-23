@@ -10,6 +10,7 @@
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": "off",
     "no-plusplus": "off",
-    "no-extend-native": "off"
+    "no-extend-native": "off",
+    "class-methods-use-this": "off"
   }
 }

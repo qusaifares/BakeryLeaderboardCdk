@@ -1,0 +1,3 @@
+[submodule "resources/BakeryLeaderboardServiceModel"]
+	path = resources/BakeryLeaderboardServiceModel
+	url = https://github.com/qusaifares/BakeryLeaderboardServiceModel

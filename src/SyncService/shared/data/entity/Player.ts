@@ -19,6 +19,6 @@ export class Player {
   @Column({ type: 'varchar', array: true, default: '{}' })
     keyWords: string[];
 
-  @OneToMany(() => Summoner, (summoner) => summoner.player, { cascade: true })
+  @OneToMany(() => Summoner, (summoner) => summoner.player, { cascade: true, eager: true })
     summoners: Summoner[];
 }
