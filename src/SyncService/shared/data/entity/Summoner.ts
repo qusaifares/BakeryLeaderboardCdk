@@ -53,7 +53,7 @@ export class Summoner {
     matches: MatchSummoner[];
 
   @OneToOne(() => SummonerStat, (stats) => stats.summoner, { cascade: true, eager: true })
-    statistics: SummonerStat;
+    statistics?: SummonerStat;
 
   @OneToMany(() => RankSnapshot, (snapshot) => snapshot.summoner, { cascade: true })
     rankSnapshots: RankSnapshot[];

@@ -13,7 +13,8 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "generate": "npm --prefix resources/BakeryLeaderboardServiceModel install && npm --prefix resources/BakeryLeaderboardServiceModel run generate-ts-sdk && mv resources/BakeryLeaderboardServiceModel/output/model/typescript/* src/SyncService/handler/DataProviderService/api",
+    "sync": "git submodule update --remote",
+    "generate": "rimraf src/SyncService/handler/DataProviderService/api/* && npm --prefix resources/BakeryLeaderboardServiceModel install && npm --prefix resources/BakeryLeaderboardServiceModel run generate-ts-sdk && mv resources/BakeryLeaderboardServiceModel/output/model/typescript/* src/SyncService/handler/DataProviderService/api",
     "lint": "npx eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "devDependencies": {

@@ -30,13 +30,19 @@ export interface Player {
      * @type {number}
      * @memberof Player
      */
-    place?: number;
+    place: number;
     /**
      * The player's name
      * @type {string}
      * @memberof Player
      */
     name: string;
+    /**
+     * Number of games played
+     * @type {number}
+     * @memberof Player
+     */
+    gamesPlayed: number;
     /**
      * Number of wins
      * @type {number}
@@ -131,7 +137,9 @@ export type PlayerDivisionEnum = typeof PlayerDivisionEnum[keyof typeof PlayerDi
 export function instanceOfPlayer(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "place" in value;
     isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "gamesPlayed" in value;
     isInstance = isInstance && "wins" in value;
     isInstance = isInstance && "losses" in value;
     isInstance = isInstance && "winRate" in value;
@@ -156,8 +164,9 @@ export function PlayerFromJSONTyped(json: any, ignoreDiscriminator: boolean): Pl
     return {
         
         'id': json['id'],
-        'place': !exists(json, 'place') ? undefined : json['place'],
+        'place': json['place'],
         'name': json['name'],
+        'gamesPlayed': json['gamesPlayed'],
         'wins': json['wins'],
         'losses': json['losses'],
         'winRate': json['winRate'],
@@ -182,6 +191,7 @@ export function PlayerToJSON(value?: Player | null): any {
         'id': value.id,
         'place': value.place,
         'name': value.name,
+        'gamesPlayed': value.gamesPlayed,
         'wins': value.wins,
         'losses': value.losses,
         'winRate': value.winRate,

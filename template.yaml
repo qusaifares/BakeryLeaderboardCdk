@@ -1346,6 +1346,25 @@ Resources:
     DeletionPolicy: Delete
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardDatabase/Reader1/Resource
+  BakeryLeaderboardDatabaseReader244DE80B7:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBClusterIdentifier:
+        Ref: BakeryLeaderboardDatabase5E4ABA2D
+      DBInstanceClass: db.serverless
+      Engine: aurora-postgresql
+      PromotionTier: 2
+    DependsOn:
+      - MyVpcPrivateSubnet1DefaultRouteA8CDE2FA
+      - MyVpcPrivateSubnet1RouteTableAssociation56D38C7E
+      - MyVpcPrivateSubnet2DefaultRoute9CE96294
+      - MyVpcPrivateSubnet2RouteTableAssociation86A610DA
+      - MyVpcPrivateSubnet3DefaultRouteEC11C0C5
+      - MyVpcPrivateSubnet3RouteTableAssociationD951741C
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: BakeryLeaderboardStack/BakeryLeaderboardDatabase/Reader2/Resource
   SummonerSourceLambdaServiceRole063D76E3:
     Type: AWS::IAM::Role
     Properties:
@@ -1425,7 +1444,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: 132a7aef44ffd3f8aefcaaeb290733c20ffe385c33909c4523005399fab25fa2.zip
+        S3Key: 3d75f98e70c3517ab15acf9899a173407d78ad5a5abf82637fc533ef500be6a6.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -1461,7 +1480,7 @@ Resources:
       - SummonerSourceLambdaServiceRole063D76E3
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/SummonerSourceLambda/Resource
-      aws:asset:path: asset.132a7aef44ffd3f8aefcaaeb290733c20ffe385c33909c4523005399fab25fa2
+      aws:asset:path: asset.3d75f98e70c3517ab15acf9899a173407d78ad5a5abf82637fc533ef500be6a6
       aws:asset:is-bundled: true
       aws:asset:property: Code
   SourceMatchesLambdaServiceRoleEF9474EC:
@@ -1551,7 +1570,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: b9245ddc3ea42477c09c9df502550a04fb0c51f6052bd646f12bbfa91da301f6.zip
+        S3Key: 844e05d9e1b4835be7496df9578d49f261e12740c5592682f3606b0bf43b02dc.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -1587,7 +1606,7 @@ Resources:
       - SourceMatchesLambdaServiceRoleEF9474EC
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/SourceMatchesLambda/Resource
-      aws:asset:path: asset.b9245ddc3ea42477c09c9df502550a04fb0c51f6052bd646f12bbfa91da301f6
+      aws:asset:path: asset.844e05d9e1b4835be7496df9578d49f261e12740c5592682f3606b0bf43b02dc
       aws:asset:is-bundled: true
       aws:asset:property: Code
   GetMatchIdsForSummonerLambdaServiceRoleF7735954:
@@ -1688,7 +1707,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: 93835236e8bae6f19843f869e73894dfda0af8f7fc2f3ab4b8df6570d7582cc0.zip
+        S3Key: 0a5f56d95d560b1b0033c7c0444541f23c39c1ea4c611af5580962c1ac0af2db.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -1724,7 +1743,7 @@ Resources:
       - MyVpcPrivateSubnet3RouteTableAssociationD951741C
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/GetMatchIdsForSummonerLambda/Resource
-      aws:asset:path: asset.93835236e8bae6f19843f869e73894dfda0af8f7fc2f3ab4b8df6570d7582cc0
+      aws:asset:path: asset.0a5f56d95d560b1b0033c7c0444541f23c39c1ea4c611af5580962c1ac0af2db
       aws:asset:is-bundled: true
       aws:asset:property: Code
   GetMatchIdsForSummonerLambdaSqsEventSourceBakeryLeaderboardStackSummonerMatchFetchRequestQueue70C935A4E1C702A4:
@@ -1865,7 +1884,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: 12018fc8fd8987ffaabb9bb20cabd694c61d2c6af6a8b78e9409d15635380f52.zip
+        S3Key: 472f3599b0f3b6aa6b9da1a1e432149761c20b75222160451517ed5c11ac8a03.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -1899,7 +1918,7 @@ Resources:
       - MyVpcPrivateSubnet3RouteTableAssociationD951741C
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/CheckMatchExistenceLambda/Resource
-      aws:asset:path: asset.12018fc8fd8987ffaabb9bb20cabd694c61d2c6af6a8b78e9409d15635380f52
+      aws:asset:path: asset.472f3599b0f3b6aa6b9da1a1e432149761c20b75222160451517ed5c11ac8a03
       aws:asset:is-bundled: true
       aws:asset:property: Code
   FetchAndInsertMatchDataLambdaServiceRoleF9BB2111:
@@ -1993,7 +2012,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: fe79a7b422764d350bfa23b0475ae2b5ec0ce947ba6b2d27de8a1807a46f1ef3.zip
+        S3Key: 6a68d8831cf1d8415e434276c3b48ad8fdbe2ad202dd33797ec138f47085052a.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -2033,7 +2052,7 @@ Resources:
       - MyVpcPrivateSubnet3RouteTableAssociationD951741C
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/FetchAndInsertMatchDataLambda/Resource
-      aws:asset:path: asset.fe79a7b422764d350bfa23b0475ae2b5ec0ce947ba6b2d27de8a1807a46f1ef3
+      aws:asset:path: asset.6a68d8831cf1d8415e434276c3b48ad8fdbe2ad202dd33797ec138f47085052a
       aws:asset:is-bundled: true
       aws:asset:property: Code
   MatchSourceStateMachineRoleD09F75E7:
@@ -2197,7 +2216,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: f10a83257609a5f58a310365e7ad7429464c3ceefeba666b9c4bc3250a9e0b5e.zip
+        S3Key: a2a1009d9f807c21d87dc7be188c4fe8cbf920090d89f8cede620f4ab11696ca.zip
       Environment:
         Variables:
           STATE_MACHINE_ARN:
@@ -2205,7 +2224,7 @@ Resources:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
           NODE_ENV: development
       Handler: index.handler
-      ReservedConcurrentExecutions: 200
+      ReservedConcurrentExecutions: 150
       Role:
         Fn::GetAtt:
           - MatchSourceStateMachineTriggerLambdaServiceRole64F75D7E
@@ -2231,7 +2250,7 @@ Resources:
       - MyVpcPrivateSubnet3RouteTableAssociationD951741C
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/MatchSourceStateMachineTriggerLambda/Resource
-      aws:asset:path: asset.f10a83257609a5f58a310365e7ad7429464c3ceefeba666b9c4bc3250a9e0b5e
+      aws:asset:path: asset.a2a1009d9f807c21d87dc7be188c4fe8cbf920090d89f8cede620f4ab11696ca
       aws:asset:is-bundled: true
       aws:asset:property: Code
   MatchSourceStateMachineTriggerLambdaSqsEventSourceBakeryLeaderboardStackMatchIdProcessingQueueCF2189E8E066490E:
@@ -2331,7 +2350,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: 9707db3cf1159398321a0e69a536d067b706af80359cec036b475927007b1cdb.zip
+        S3Key: ae3f4fde7ed8c0d35aaeaec84b4248104d86eb2bb4053b521a51d573a9276300.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -2367,7 +2386,7 @@ Resources:
       - SyncSummonerStatsLambdaServiceRoleFCBA71AA
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/SyncSummonerStatsLambda/Resource
-      aws:asset:path: asset.9707db3cf1159398321a0e69a536d067b706af80359cec036b475927007b1cdb
+      aws:asset:path: asset.ae3f4fde7ed8c0d35aaeaec84b4248104d86eb2bb4053b521a51d573a9276300
       aws:asset:is-bundled: true
       aws:asset:property: Code
   SyncSummonerStatsFromScratchLambdaServiceRole0CA6C4FE:
@@ -2449,7 +2468,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: 568f2ce4aaf2e3661baf3d39635bea492541e15a8d8ae108d6fcdcba04c2566d.zip
+        S3Key: 550d5602124edb8a5d1ee2bfa6183ffd27af6b10c3e31dc326c3f66f65764adf.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -2485,7 +2504,7 @@ Resources:
       - SyncSummonerStatsFromScratchLambdaServiceRole0CA6C4FE
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/SyncSummonerStatsFromScratchLambda/Resource
-      aws:asset:path: asset.568f2ce4aaf2e3661baf3d39635bea492541e15a8d8ae108d6fcdcba04c2566d
+      aws:asset:path: asset.550d5602124edb8a5d1ee2bfa6183ffd27af6b10c3e31dc326c3f66f65764adf
       aws:asset:is-bundled: true
       aws:asset:property: Code
   SourceMatchesEventBD103A76:
@@ -2595,7 +2614,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-789658303834-us-east-2
-        S3Key: ff70fffc39c8ca313f6486dd7e1383bb26116283d68434c003e8dd14b9a5e7d9.zip
+        S3Key: d3ed32a7463ac2dd2cbe08e10ad2ce133780a17d81308ba59bcf0997d56bb5b4.zip
       Environment:
         Variables:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -2629,7 +2648,7 @@ Resources:
       - MyVpcPrivateSubnet3RouteTableAssociationD951741C
     Metadata:
       aws:cdk:path: BakeryLeaderboardStack/LeaderboardDataProviderLambda/Resource
-      aws:asset:path: asset.ff70fffc39c8ca313f6486dd7e1383bb26116283d68434c003e8dd14b9a5e7d9
+      aws:asset:path: asset.d3ed32a7463ac2dd2cbe08e10ad2ce133780a17d81308ba59bcf0997d56bb5b4
       aws:asset:is-bundled: true
       aws:asset:property: Code
   GetLeaderboardEndpoint67C51734:

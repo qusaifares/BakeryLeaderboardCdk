@@ -1,6 +1,6 @@
 export type SourceMatchesEvent = SourceMatchesByIntervalRequest | SourceMatchesByStartDateRequest;
 
-interface SourceMatchesByIntervalRequest {
+interface SourceMatchesByIntervalRequest extends SourceMatchesEventBase {
   type: SourceMatchesEventType.INTERVAL;
   interval: {
     minutes?: number;
@@ -9,9 +9,13 @@ interface SourceMatchesByIntervalRequest {
   }
 }
 
-interface SourceMatchesByStartDateRequest {
+interface SourceMatchesByStartDateRequest extends SourceMatchesEventBase {
   type: SourceMatchesEventType.START_DATE;
   startEpochMilli: number;
+}
+
+interface SourceMatchesEventBase {
+  summonerIds?: string[];
 }
 
 export enum SourceMatchesEventType {

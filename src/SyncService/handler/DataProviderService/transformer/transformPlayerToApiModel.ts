@@ -14,13 +14,17 @@ LeaderboardSummonerApiModel[] => players.flatMap(transformPlayerToSummonerApiMod
 export function transformPlayerToSummonerApiModels(player: Player):
 LeaderboardSummonerApiModel[] {
   const { summoners } = player;
-  return summoners.map(transformSummonerToApiModel);
+  return summoners
+    .map(transformSummonerToApiModel)
+    .filter((model) => model !== null) as LeaderboardSummonerApiModel[];
 }
 
-function transformSummonerToApiModel(summoner: Summoner): LeaderboardSummonerApiModel {
+function transformSummonerToApiModel(summoner: Summoner): Omit<LeaderboardSummonerApiModel, 'place'> | null {
   const {
     id, name, statistics, matches,
   } = summoner;
+
+  if (!statistics) return null;
 
   const {
     wins, losses, tier, division, leaguePoints,
@@ -33,6 +37,7 @@ function transformSummonerToApiModel(summoner: Summoner): LeaderboardSummonerApi
   return {
     id,
     name,
+    gamesPlayed: wins + losses,
     wins,
     losses,
     winRate,
@@ -87,22 +92,25 @@ function sortPlayersByRank(a: LeaderboardSummonerApiModel, b: LeaderboardSummone
 function getRankValue(tier: Tier, division: Division, leaguePoints: number) {
   if (!tier || !division) return 0;
 
-  const VALUE_BY_TIER: Record<Tier, number> = {
-    [Tier.CHALLENGER]: 4000,
-    [Tier.GRANDMASTER]: 3500,
-    [Tier.MASTER]: 3000,
-    [Tier.DIAMOND]: 2500,
+  const VALUE_BY_TIER = {
+    [Tier.CHALLENGER]: 4500,
+    [Tier.GRANDMASTER]: 4000,
+    [Tier.MASTER]: 3500,
+    [Tier.DIAMOND]: 3000,
+    [Tier.EMERALD]: 2500,
     [Tier.PLATINUM]: 2000,
     [Tier.GOLD]: 1500,
     [Tier.SILVER]: 1000,
     [Tier.BRONZE]: 500,
     [Tier.IRON]: 0,
-  };
-  const VALUE_BY_DIVISION: Record<Division, number> = {
+  } as const satisfies Record<Tier, number>;
+
+  const VALUE_BY_DIVISION = {
     [Division.I]: 300,
     [Division.II]: 200,
     [Division.III]: 100,
     [Division.IV]: 0,
-  };
+  } as const satisfies Record<Division, number>;
+
   return VALUE_BY_TIER[tier] + VALUE_BY_DIVISION[division] + leaguePoints;
 }

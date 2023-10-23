@@ -78,7 +78,10 @@ export class BakeryLeaderboardStack extends cdk.Stack {
         version: rds.AuroraPostgresEngineVersion.VER_15_3,
       }),
       credentials: rds.Credentials.fromGeneratedSecret('qusai'), // auto-generate the password
-      readers: [rds.ClusterInstance.serverlessV2('Reader1', { scaleWithWriter: true })],
+      readers: [
+        rds.ClusterInstance.serverlessV2('Reader1', { scaleWithWriter: true }),
+        rds.ClusterInstance.serverlessV2('Reader2'),
+      ],
       writer: rds.ClusterInstance.provisioned('Writer'),
       // removalPolicy: cdk.RemovalPolicy.RETAIN,
       // deletionProtection: true,
@@ -189,7 +192,7 @@ export class BakeryLeaderboardStack extends cdk.Stack {
         STATE_MACHINE_ARN: matchSourceStateMachine.stateMachineArn,
       },
       vpc,
-      reservedConcurrentExecutions: 200,
+      reservedConcurrentExecutions: 150,
     });
 
     const syncSummonerStatsLambda = new lambdanodejs.NodejsFunction(this, 'SyncSummonerStatsLambda', {

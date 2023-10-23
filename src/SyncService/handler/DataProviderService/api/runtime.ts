@@ -13,7 +13,7 @@
  */
 
 
-export const BASE_PATH = "https://leaderboard.app/api/v1".replace(/\/+$/, "");
+export const BASE_PATH = "https://wkwjuwml9h.execute-api.us-east-2.amazonaws.com/prod".replace(/\/+$/, "");
 
 export interface ConfigurationParameters {
     basePath?: string; // override base path

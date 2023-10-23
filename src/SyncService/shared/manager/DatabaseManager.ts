@@ -34,31 +34,19 @@ export class DatabaseManager {
   }
 
   public async getDataSource(): Promise<DataSource> {
-    return withTimeout(
-      async () => {
-        if (!this.dataSource) {
-          const dataSourceOptions = await this.getDataSourceOptions();
-          console.log(`Connecting to host ${dataSourceOptions.host}`);
-          this.dataSource = new DataSource(dataSourceOptions);
-        }
+    if (!this.dataSource) {
+      const dataSourceOptions = await this.getDataSourceOptions();
+      console.log(`Connecting to host ${dataSourceOptions.host}`);
+      this.dataSource = new DataSource(dataSourceOptions);
+    }
 
-        if (this.dataSource.isInitialized) return this.dataSource;
+    if (this.dataSource.isInitialized) return this.dataSource;
 
-        console.log('Initializing DB connection');
-        const source = await this.dataSource.initialize();
+    console.log('Initializing DB connection');
+    const source = await this.dataSource.initialize();
+    console.log('Successfully connected to DB.', source);
 
-        return source;
-      },
-      CONNECTION_TIMEOUT,
-      {
-        taskName: 'Database connection',
-        onError: () => {
-          console.log('Failed to get DB connection');
-          if (!this.dataSource) return;
-          this.dataSource.destroy();
-        },
-      },
-    );
+    return source;
   }
 
   private async getDataSourceOptions(): Promise<PostgresConnectionOptions> {
@@ -77,6 +65,9 @@ export class DatabaseManager {
       entities: [Match, MatchSummoner, Player, Summoner, RankSnapshot, SummonerStat],
       subscribers: [path.join(__dirname, '../data/subscriber/*{.ts,.js}')],
       migrations: [path.join(__dirname, '../data/migration/*{.ts,.js}')],
+      connectTimeoutMS: 4000,
+      logger: 'debug',
+      poolSize: 100,
     };
   }
 

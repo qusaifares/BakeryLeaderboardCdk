@@ -15,6 +15,10 @@ Promise<CheckMatchExistenceLambdaResult> => {
   console.log('Received event:', event);
   const { matchId } = event;
 
+  if (!matchId) {
+    throw new Error('No matchId passed in to request.');
+  }
+
   const dataSource = await databaseManager.getDataSource();
 
   console.log(`Fetching match with ID ${matchId} from DB`);

@@ -95,7 +95,7 @@ export class SummonerStat {
 
   @OneToOne(() => Summoner, (summoner) => summoner.statistics)
   @JoinColumn()
-    summoner: Summoner;
+    summoner?: Summoner;
 
   static copyOf(stat: SummonerStat) {
     const newStat = new SummonerStat();

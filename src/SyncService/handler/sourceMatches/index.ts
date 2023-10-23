@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import 'dotenv/config';
 import { SendMessageBatchCommandInput, SendMessageBatchRequestEntry } from '@aws-sdk/client-sqs';
 import { Handler } from 'aws-lambda';
+import { FindManyOptions, In } from 'typeorm';
 import { config } from '../../shared/config/Config';
 import { Summoner } from '../../shared/data/entity';
 import { chunkArray } from '../../shared/utils/chunkArray';
@@ -14,15 +15,19 @@ const BATCH_SIZE = 10;
 const sqs = config.getAwsConfig().getSqs();
 
 export const handler: Handler<SourceMatchesEvent> = async (event) => {
-  console.log('Invoking HANDLER');
+  console.log('Received event:', event);
   const { SUMMONER_MATCH_FETCH_REQUEST_QUEUE_URL } = process.env;
   if (!SUMMONER_MATCH_FETCH_REQUEST_QUEUE_URL) {
     throw new Error('SUMMONER_MATCH_FETCH_REQUEST_QUEUE_URL not found');
   }
 
+  const { summonerIds } = event;
+
+  const queryOptions: FindManyOptions = summonerIds ? { where: In(summonerIds) } : {};
+
   const dataSource = await config.getManagerConfig().getDatabaseManager().getDataSource();
 
-  const summoners = await dataSource.manager.find(Summoner);
+  const summoners = await dataSource.manager.find(Summoner, queryOptions);
 
   console.log(`Executing sourceMatches for ${summoners.length} summoners`);
 

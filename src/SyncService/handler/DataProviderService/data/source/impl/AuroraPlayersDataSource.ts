@@ -7,7 +7,7 @@ export class AuroraPlayersDataSource implements PlayersDataSource {
     const dataSource = await config.getManagerConfig().getDatabaseManager().getDataSource();
 
     console.log('Fetching all players');
-    return dataSource.manager.find(Player);
+    return dataSource.manager.find(Player, { relations: ['summoners', 'summoners.matches'] });
   }
 }
 
