@@ -16,6 +16,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(getLeaderboardResponse()),
+    body: JSON.stringify(await getLeaderboardResponse()),
   };
 };
