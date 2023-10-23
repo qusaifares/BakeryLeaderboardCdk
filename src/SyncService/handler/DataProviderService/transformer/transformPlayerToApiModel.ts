@@ -46,6 +46,7 @@ function transformSummonerToApiModel(summoner: Summoner): LeaderboardSummonerApi
 }
 
 function transformRankToString(tier: Tier, division: Division, leaguePoints: number) {
+  if (!tier || !division) return '';
   return `${capitalized(tier.toLowerCase())} ${division}, ${leaguePoints}LP`;
 }
 
