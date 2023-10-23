@@ -51,7 +51,7 @@ export class DatabaseManager {
       CONNECTION_TIMEOUT,
       {
         taskName: 'Database connection',
-        onError: () => this.dataSource.destroy(),
+        onError: () => this.dataSource?.destroy(),
       },
     );
   }
